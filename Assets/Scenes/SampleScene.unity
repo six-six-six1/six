@@ -962,6 +962,7 @@ RectTransform:
   - {fileID: 1116761248}
   - {fileID: 253843203}
   - {fileID: 61545005}
+  - {fileID: 1707162550}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1498,7 +1499,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardUIPrefab: {fileID: 6188655616549270593, guid: 286e79b080e7c4b42abb1a971bdc7d0c, type: 3}
   handPanel: {fileID: 778095582}
-  raycaster: {fileID: 828869995}
+  dragAlpha: 0.7
+  dragOffset: {x: 0, y: 20}
 --- !u!4 &1707162550
 Transform:
   m_ObjectHideFlags: 0
@@ -1507,12 +1509,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1707162547}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 787.08356, y: 393.31213, z: -9.191156}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -172.91644, y: -146.68787, z: -9.191156}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 828869994}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1754563433
 GameObject:
@@ -2564,5 +2566,4 @@ SceneRoots:
   - {fileID: 426874557}
   - {fileID: 828869994}
   - {fileID: 1892868987}
-  - {fileID: 1707162550}
   - {fileID: 656198877}
