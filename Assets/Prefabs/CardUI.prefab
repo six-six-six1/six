@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 36.1, y: 29.9}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchoredPosition: {x: -4, y: -1}
+  m_SizeDelta: {x: 160.5151, y: 107.04}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6949112480836772402
 CanvasRenderer:
@@ -67,18 +67,18 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
+    m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
-    m_Alignment: 0
+    m_MinSize: 3
+    m_MaxSize: 60
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: card
 --- !u!1 &6188655616549270593
 GameObject:
   m_ObjectHideFlags: 0
@@ -93,6 +93,7 @@ GameObject:
   - component: {fileID: 1172681177800407965}
   - component: {fileID: 7806395360819001826}
   - component: {fileID: -4141894285887207970}
+  - component: {fileID: 7771737131033968431}
   m_Layer: 5
   m_Name: CardUI
   m_TagString: Untagged
@@ -117,8 +118,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -172.91644, y: -146.68787}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 25.762878, y: -24.810303}
+  m_SizeDelta: {x: 140.4741, y: 132.3794}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1867646465754009296
 CanvasRenderer:
@@ -141,7 +142,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.81761, g: 0.31110308, b: 0.31110308, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -217,7 +218,7 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0.99371064, g: 0.62810004, b: 0.62810004, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
@@ -235,7 +236,22 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 1039551695145069857}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7771737131033968431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6188655616549270593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7839274600096704e949da08b948de01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardData: {fileID: 11400000, guid: 858c3f162c7910c439de86388744e139, type: 2}
+  statusText: {fileID: 3720365280212742891, guid: db2c666f7a8944c41a76cc9adf0a5e81, type: 3}
+  typeText: {fileID: 8281782285288066049, guid: 5f4904c061cacd445b6b7b114a00641b, type: 3}

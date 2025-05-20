@@ -1,200 +1,152 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-
 public class CardUIManager : MonoBehaviour
 {
-    // 配置参数
-    [Header("必需引用")]
-    public GameObject cardUIPrefab;
-    public Transform handPanel;
+    public GameObject cardPrefab;
+    public Transform handContainer;
+    public static CardUIManager Instance;
 
-    [Header("拖拽设置")]
-    public float dragAlpha = 0.7f;
-    public Vector2 dragOffset = new Vector2(0, 20f); // 拖拽时鼠标与卡牌的偏移
-
-    // 运行时状态
-    private List<GameObject> cardUIInstances = new List<GameObject>();
     private GameObject draggedCard;
-    private CardData currentDraggedCard;
-    private Canvas rootCanvas;
-    private GraphicRaycaster raycaster;  // 新增声明
+    private CardData draggedCardData;
+    private Canvas canvas;
+
     private void Awake()
     {
-        rootCanvas = GetComponentInParent<Canvas>();
-        if (handPanel == null) handPanel = transform;
-        // 初始化raycaster
-        raycaster = GetComponentInParent<GraphicRaycaster>();
-        if (raycaster == null)
-        {
-            raycaster = FindObjectOfType<GraphicRaycaster>();
-            if (raycaster == null)
-            {
-                Debug.LogError("场景中未找到GraphicRaycaster组件！");
-            }
-        }
-    }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
 
+        canvas = GetComponentInParent<Canvas>();
+    }
 
     public void UpdateHandUI(List<CardData> hand)
     {
-        ClearHandUI();
+        Debug.Log($"更新手牌UI，手牌数量:{hand?.Count}");
+
+        // 清空现有手牌
+        foreach (Transform child in handContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        if (hand == null || hand.Count == 0)
+        {
+            Debug.LogWarning("手牌数据为空！");
+            return;
+        }
+
+        // 创建新卡牌UI
         foreach (var card in hand)
         {
-            var cardUI = Instantiate(cardUIPrefab, handPanel);
-            SetupCardUI(cardUI, card);
-            cardUIInstances.Add(cardUI);
+            Debug.Log($"创建卡牌:{card?.type}");
+            CreateCardUI(card);
         }
     }
 
-    private void SetupCardUI(GameObject cardUI, CardData card)
+    private void CreateCardUI(CardData card)
     {
-        // 基础设置
-        var img = cardUI.GetComponent<Image>();
-        img.sprite = card.icon;
-        img.preserveAspect = true;
+        GameObject cardObj = Instantiate(cardPrefab, handContainer);
+        cardObj.GetComponent<Image>().sprite = card.icon;
 
-        var text = cardUI.GetComponentInChildren<Text>();
-        if (text != null) text.text = card.type.ToString();
+        // 设置卡牌数据
+        var display = cardObj.GetComponent<CardDisplay>();
+        if (display != null) display.cardData = card;
 
-        // 事件设置
-        var trigger = cardUI.GetComponent<EventTrigger>() ?? cardUI.AddComponent<EventTrigger>();
-        trigger.triggers.Clear();
-
-        AddTriggerEvent(trigger, EventTriggerType.BeginDrag, (data) => StartDrag(card, data));
-        AddTriggerEvent(trigger, EventTriggerType.Drag, (data) => DuringDrag(data));
-        AddTriggerEvent(trigger, EventTriggerType.EndDrag, (data) => EndDrag());
+        // 添加拖拽事件
+        AddDragEvents(cardObj);
     }
 
-    private void AddTriggerEvent(EventTrigger trigger, EventTriggerType type, UnityEngine.Events.UnityAction<BaseEventData> action)
+    private void AddDragEvents(GameObject cardObj)
     {
-        var entry = new EventTrigger.Entry { eventID = type };
-        entry.callback.AddListener(action);
-        trigger.triggers.Add(entry);
+        EventTrigger trigger = cardObj.GetComponent<EventTrigger>() ?? cardObj.AddComponent<EventTrigger>();
+
+        // 开始拖拽
+        EventTrigger.Entry beginDrag = new EventTrigger.Entry();
+        beginDrag.eventID = EventTriggerType.BeginDrag;
+        beginDrag.callback.AddListener((data) => OnBeginDrag(cardObj, (PointerEventData)data));
+        trigger.triggers.Add(beginDrag);
+
+        // 拖拽中
+        EventTrigger.Entry drag = new EventTrigger.Entry();
+        drag.eventID = EventTriggerType.Drag;
+        drag.callback.AddListener((data) => OnDrag((PointerEventData)data));
+        trigger.triggers.Add(drag);
+
+        // 结束拖拽
+        EventTrigger.Entry endDrag = new EventTrigger.Entry();
+        endDrag.eventID = EventTriggerType.EndDrag;
+        endDrag.callback.AddListener((data) => OnEndDrag((PointerEventData)data));
+        trigger.triggers.Add(endDrag);
     }
 
-    private void StartDrag(CardData card, BaseEventData data)
+    private void OnBeginDrag(GameObject card, PointerEventData eventData)
     {
-        // 1. 检查必要引用
-        Debug.Log("开始拖拽事件触发"); // 确认事件起点
-        if (cardUIPrefab == null)
+        // 获取卡牌显示组件
+        var display = card.GetComponent<CardDisplay>();
+        if (display != null)
         {
-            Debug.LogError("cardUIPrefab 未赋值！");
-            return;
+            display.SetDraggingStatus(true); // 开始拖拽时更新状态
         }
 
-        if (rootCanvas == null)
-        {
-            rootCanvas = GetComponentInParent<Canvas>();
-            if (rootCanvas == null)
-            {
-                Debug.LogError("未找到Canvas！");
-                return;
-            }
-        }
-
-        // 2. 实例化卡牌
-        draggedCard = Instantiate(cardUIPrefab, rootCanvas.transform);
-        if (draggedCard == null)
-        {
-            Debug.LogError("卡牌实例化失败！");
-            return;
-        }
-
-        // 3. 设置卡牌属性
+        // 创建拖拽副本
+        draggedCard = Instantiate(card, canvas.transform);
         draggedCard.transform.SetAsLastSibling();
 
-        Image img = draggedCard.GetComponent<Image>();
-        if (img == null)
-        {
-            Debug.LogError("卡牌预制体缺少Image组件！");
-            Destroy(draggedCard);
-            return;
-        }
-
-        img.sprite = card?.icon; // 安全访问card
+        var img = draggedCard.GetComponent<Image>();
         img.raycastTarget = false;
-        img.color = new Color(1, 1, 1, dragAlpha);
+        img.color = new Color(1, 1, 1, 0.7f);
 
-        // 4. 设置位置
-        var pointerData = data as PointerEventData;
-        if (pointerData != null)
+        draggedCardData = card.GetComponent<CardDisplay>().cardData;
+    }
+
+    private void OnDrag(PointerEventData eventData)
+    {
+        if (draggedCard != null)
         {
-            Vector3 mousePos = new Vector3(pointerData.position.x, pointerData.position.y, 0);
-            Vector3 offset = new Vector3(dragOffset.x, dragOffset.y, 0);
-            draggedCard.transform.position = mousePos + offset;
+            draggedCard.transform.position = eventData.position;
         }
-
-        currentDraggedCard = card;
     }
 
-    private void DuringDrag(BaseEventData data)
+    private void OnEndDrag(PointerEventData eventData)
     {
         if (draggedCard == null) return;
 
-        var pointerData = (PointerEventData)data;
-        Vector3 mousePosition = new Vector3(pointerData.position.x, pointerData.position.y, 0);
-        Vector3 offset = new Vector3(dragOffset.x, dragOffset.y, 0);
-        draggedCard.transform.position = mousePosition + offset;
-    }
-
-    private void EndDrag()
-    {
-        Debug.Log("结束拖拽事件触发");
-        if (draggedCard == null) return;
-
-        bool used = CheckIfUsedOnPlayArea();
+        bool used = IsOverPlayArea(eventData);
+        // 恢复原卡牌状态
+        var originalCard = eventData.pointerDrag; // 获取被拖拽的原始卡牌
+        if (originalCard != null)
+        {
+            var display = originalCard.GetComponent<CardDisplay>();
+            if (display != null)
+            {
+                display.SetDraggingStatus(false); // 结束拖拽时恢复状态
+            }
+        }
         Destroy(draggedCard);
 
-        if (used && currentDraggedCard != null)
+        if (used && draggedCardData != null)
         {
-            CardManager.Instance.PlayCard(currentDraggedCard);
+            CardManager.Instance.PlayCard(draggedCardData);
         }
-        currentDraggedCard = null;
+
+        draggedCard = null;
+        draggedCardData = null;
     }
 
-    private bool CheckIfUsedOnPlayArea()
+    private bool IsOverPlayArea(PointerEventData eventData)
     {
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
 
-        if (EventSystem.current == null || raycaster == null)
-        {
-            Debug.LogError("事件系统缺失！");
-            return false;
-        }
-
-        PointerEventData eventData = new PointerEventData(EventSystem.current);
-        eventData.position = Input.mousePosition;
-
-        // 调试所有被射线检测到的对象
-        List<RaycastResult> results = new List<RaycastResult>();
-        raycaster.Raycast(eventData, results);
-
-        Debug.Log($"检测到{results.Count}个对象：");
         foreach (var result in results)
         {
-            Debug.Log($"{result.gameObject.name} (Tag: {result.gameObject.tag})");
-
             if (result.gameObject.CompareTag("PlayArea"))
             {
-                Debug.Log("有效释放区域");
                 return true;
             }
         }
-
-        Debug.Log("未找到有效释放区域");
         return false;
-    }
-
-    private void ClearHandUI()
-    {
-        foreach (var card in cardUIInstances)
-        {
-            if (card != null) Destroy(card);
-        }
-        cardUIInstances.Clear();
     }
 }
