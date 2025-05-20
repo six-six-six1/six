@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Card_EnergyStone
   m_EditorClassIdentifier: 
   type: 1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 27a937dd83b138549aff01407a878fa3, type: 3}
   description: 
   moveDistance: 1
   shockDistance: 3
