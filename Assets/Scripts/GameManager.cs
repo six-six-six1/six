@@ -26,9 +26,17 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         SpawnPlayer();
+        // 新增：绑定回合结束事件
+        turnManager.onTurnEnded.AddListener(OnTurnEnded);
         turnManager.StartPlayerTurn();
     }
 
+    private void OnTurnEnded()
+    {
+        // 设置每回合感染1-2个地块
+        int expandCount = Random.Range(1, 3);
+        DarkTileSystem.Instance.ExpandDarkTiles(expandCount);
+    }
     private void SpawnPlayer()
     {
         Instantiate(playerPrefab, GetStartPosition(), Quaternion.identity);
