@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Card_Shock
   m_EditorClassIdentifier: 
   type: 3
-  icon: {fileID: 0}
+  icon: {fileID: 4384133029620257777, guid: 8ac8a9227b6fa2a4ebff209e6c918061, type: 3}
   description: 
   moveDistance: 1
   shockDistance: 3

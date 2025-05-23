@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55f747e8af38fbe4d8819f37be6fd5aa, type: 3}
   m_Name: CardReplenishHexTile
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: 21300000, guid: 27a937dd83b138549aff01407a878fa3, type: 3}
+  m_DefaultSprite: {fileID: 1004440816310095398, guid: 26af9c3ee296e7942afb9471cfee6954, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules: []

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55f747e8af38fbe4d8819f37be6fd5aa, type: 3}
   m_Name: ExitHexTile
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: 21300000, guid: ea96cb13b762e59469063669806c3e91, type: 3}
+  m_DefaultSprite: {fileID: -2723623525041974545, guid: f99ff14f70e2d2d45993b848e03bec17, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules: []
