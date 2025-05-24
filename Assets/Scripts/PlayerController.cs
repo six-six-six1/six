@@ -74,6 +74,7 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
+        Debug.Log($"移动完成，当前位置：{transform.position}");
         isMoving = false;
     }
 }

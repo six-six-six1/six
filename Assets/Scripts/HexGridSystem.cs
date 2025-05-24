@@ -141,7 +141,7 @@ public class HexGridSystem : MonoBehaviour
         // 这里需要根据你的游戏规则实现
         // 示例：检查障碍物和黑雾
         return tilemap.GetTile(hexCoords) != null
-            && tilemap.GetTile(hexCoords).name != "ObstacleTile"
-            && tilemap.GetTile(hexCoords).name != "DarkTile";
+            && tilemap.GetTile(hexCoords).name != "BlockPillarHexTile"
+            && tilemap.GetTile(hexCoords).name != "DarkHexTile";
     }
 }
