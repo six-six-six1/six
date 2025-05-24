@@ -6,13 +6,13 @@ using UnityEngine.Tilemaps;
 public class HexGridSystem : MonoBehaviour
 {
     public static HexGridSystem Instance;
-    // ĞÂÔö±ØÒª×Ö¶ÎÉùÃ÷
-    [Header("Tilemap References")]
-    public Tilemap tilemap; // ĞèÒªÍÏ×§°ó¶¨µ½ Inspector
+
+    // æ–°å¢å¿…è¦å­—æ®µå£°æ˜
+    [Header("Tilemap References")] public Tilemap tilemap; // éœ€è¦æ‹–æ‹½ç»‘å®šåˆ° Inspector
 
     private void Awake()
     {
-        // µ¥Àı³õÊ¼»¯
+        // å•ä¾‹åˆå§‹åŒ–
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -24,35 +24,37 @@ public class HexGridSystem : MonoBehaviour
         }
     }
 
-    // Áù±ßĞÎÁÚ¾Ó·½Ïò (Æ½¶¥Áù±ßĞÎ)
+    // å…­è¾¹å½¢é‚»å±…æ–¹å‘ (å¹³é¡¶å…­è¾¹å½¢)
     // HexGridSystem.cs
     private Vector3Int[] GetNeighborDirections(bool isOddRow)
     {
-        // Æ½¶¥Áù±ßĞÎ YXZ Ä£Ê½ÏÂµÄÁÚ¾Ó·½Ïò
-        return isOddRow ?
-            // ÆæÊıĞĞ·½Ïò
+        // å¹³é¡¶å…­è¾¹å½¢ YXZ æ¨¡å¼ä¸‹çš„é‚»å±…æ–¹å‘
+        return isOddRow
+            ?
+            // å¥‡æ•°è¡Œæ–¹å‘
             new Vector3Int[]
             {
-            new Vector3Int(1, 0, 0),   // ÓÒ (East)
-            new Vector3Int(1, 1, 0),    // ÓÒÉÏ (Northeast)
-            new Vector3Int(0, 1, 0),    // ×óÉÏ (Northwest)
-            new Vector3Int(-1, 0, 0),   // ×ó (West)
-            new Vector3Int(0, -1, 0),   // ×óÏÂ (Southwest)
-            new Vector3Int(1, -1, 0)    // ÓÒÏÂ (Southeast)
-            } :
-            // Å¼ÊıĞĞ·½Ïò
+                new Vector3Int(1, 0, 0), // å³ (East)
+                new Vector3Int(1, 1, 0), // å³ä¸Š (Northeast)
+                new Vector3Int(0, 1, 0), // å·¦ä¸Š (Northwest)
+                new Vector3Int(-1, 0, 0), // å·¦ (West)
+                new Vector3Int(0, -1, 0), // å·¦ä¸‹ (Southwest)
+                new Vector3Int(1, -1, 0) // å³ä¸‹ (Southeast)
+            }
+            :
+            // å¶æ•°è¡Œæ–¹å‘
             new Vector3Int[]
             {
-            new Vector3Int(1, 0, 0),   // ÓÒ (East)
-            new Vector3Int(0, 1, 0),    // ÓÒÉÏ (Northeast)
-            new Vector3Int(-1, 1, 0),   // ×óÉÏ (Northwest)
-            new Vector3Int(-1, 0, 0),   // ×ó (West)
-            new Vector3Int(-1, -1, 0),  // ×óÏÂ (Southwest)
-            new Vector3Int(0, -1, 0)     // ÓÒÏÂ (Southeast)
+                new Vector3Int(1, 0, 0), // å³ (East)
+                new Vector3Int(0, 1, 0), // å³ä¸Š (Northeast)
+                new Vector3Int(-1, 1, 0), // å·¦ä¸Š (Northwest)
+                new Vector3Int(-1, 0, 0), // å·¦ (West)
+                new Vector3Int(-1, -1, 0), // å·¦ä¸‹ (Southwest)
+                new Vector3Int(0, -1, 0) // å³ä¸‹ (Southeast)
             };
     }
 
-    // ×ø±ê×ª»»·½·¨
+    // åæ ‡è½¬æ¢æ–¹æ³•
     public Vector3Int WorldToCell(Vector3 worldPosition)
     {
         return tilemap.WorldToCell(worldPosition);
@@ -60,29 +62,34 @@ public class HexGridSystem : MonoBehaviour
 
     public Vector3 GetHexCenterPosition(Vector3Int cellPosition)
     {
-        // È·±£ Tilemap ÒÑÕıÈ·ÅäÖÃÎªÁù±ßĞÎ²¼¾Ö
+        // ç¡®ä¿ Tilemap å·²æ­£ç¡®é…ç½®ä¸ºå…­è¾¹å½¢å¸ƒå±€
         return tilemap.GetCellCenterWorld(cellPosition);
     }
-    // ÓĞĞ§ĞÔÑéÖ¤·½·¨
+
+    // æœ‰æ•ˆæ€§éªŒè¯æ–¹æ³•
     public bool IsHexValid(Vector3Int position)
     {
         return tilemap.GetTile(position) != null;
     }
 
-    [Header("Highlight")]
-    public TileBase highlightTile;
+    [Header("Highlight")] public TileBase highlightTile;
+
+    public List<TileBase> highlightTileList = new();
     private Dictionary<Vector3Int, TileBase> originalTiles = new Dictionary<Vector3Int, TileBase>();
 
-    // HexGridSystem.cs ĞŞ¸Ä¸ßÁÁÂß¼­
+    // HexGridSystem.cs ä¿®æ”¹é«˜äº®é€»è¾‘
     public void HighlightHex(Vector3Int position, bool highlight)
     {
-        if (!IsHexWalkable(position)) return; // ĞÂÔöÅĞ¶Ï
+        if (!IsHexWalkable(position)) return; // æ–°å¢åˆ¤æ–­
 
+        Debug.Log("é«˜äº®");
         if (highlight)
         {
             originalTiles[position] = tilemap.GetTile(position);
             tilemap.SetTile(position, highlightTile);
-            tilemap.SetColor(position, Color.yellow); // µş¼ÓÑÕÉ«¶ø·ÇÌæ»»Tile
+            tilemap.SetColor(position, Color.yellow); // å åŠ é¢œè‰²è€Œéæ›¿æ¢Tile
+            highlightTileList.Add(tilemap.GetTile(position));
+
         }
         else
         {
@@ -97,7 +104,9 @@ public class HexGridSystem : MonoBehaviour
         {
             tilemap.SetTile(pos, originalTiles[pos]);
         }
+
         originalTiles.Clear();
+        highlightTileList.Clear();
     }
 
     public List<Vector3Int> GetWalkableNeighbors(Vector3Int center)
@@ -113,10 +122,11 @@ public class HexGridSystem : MonoBehaviour
                 neighbors.Add(neighborPos);
             }
         }
+
         return neighbors;
     }
 
-    // ÔÚSceneÊÓÍ¼ÖĞ¿ÉÊÓ»¯ÁÚ¾Ó·½Ïò
+    // åœ¨Sceneè§†å›¾ä¸­å¯è§†åŒ–é‚»å±…æ–¹å‘
     private void OnDrawGizmosSelected()
     {
         if (!Application.isPlaying) return;
@@ -135,13 +145,13 @@ public class HexGridSystem : MonoBehaviour
         }
     }
 
-    // ĞÂÔö¿ÉĞĞ×ßĞÔÑéÖ¤
+    // æ–°å¢å¯è¡Œèµ°æ€§éªŒè¯
     public bool IsHexWalkable(Vector3Int hexCoords)
     {
-        // ÕâÀïĞèÒª¸ù¾İÄãµÄÓÎÏ·¹æÔòÊµÏÖ
-        // Ê¾Àı£º¼ì²éÕÏ°­ÎïºÍºÚÎí
+        // è¿™é‡Œéœ€è¦æ ¹æ®ä½ çš„æ¸¸æˆè§„åˆ™å®ç°
+        // ç¤ºä¾‹ï¼šæ£€æŸ¥éšœç¢ç‰©å’Œé»‘é›¾
         return tilemap.GetTile(hexCoords) != null
-            && tilemap.GetTile(hexCoords).name != "BlockPillarHexTile"
-            && tilemap.GetTile(hexCoords).name != "DarkHexTile";
+               && tilemap.GetTile(hexCoords).name != "BlockPillarHexTile"
+               && tilemap.GetTile(hexCoords).name != "DarkHexTile";
     }
 }

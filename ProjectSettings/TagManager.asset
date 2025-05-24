@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PlayArea
   - CardPlayArea
+  - ExitPoint
   layers:
   - Default
   - TransparentFX

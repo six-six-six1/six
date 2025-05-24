@@ -24,9 +24,9 @@ public class CardUIManager : MonoBehaviour
 
     public void UpdateHandUI(List<CardData> hand)
     {
-        Debug.Log($"¸üĞÂÊÖÅÆUI£¬ÊÖÅÆÊıÁ¿:{hand?.Count}");
+        Debug.Log($"æ›´æ–°æ‰‹ç‰ŒUIï¼Œæ‰‹ç‰Œæ•°é‡:{hand?.Count}");
 
-        // Çå¿ÕÏÖÓĞÊÖÅÆ
+        // æ¸…ç©ºç°æœ‰æ‰‹ç‰Œ
         foreach (Transform child in handContainer)
         {
             Destroy(child.gameObject);
@@ -34,14 +34,14 @@ public class CardUIManager : MonoBehaviour
 
         if (hand == null || hand.Count == 0)
         {
-            Debug.LogWarning("ÊÖÅÆÊı¾İÎª¿Õ£¡");
+            Debug.LogWarning("æ‰‹ç‰Œæ•°æ®ä¸ºç©ºï¼");
             return;
         }
 
-        // ´´½¨ĞÂ¿¨ÅÆUI
+        // åˆ›å»ºæ–°å¡ç‰ŒUI
         foreach (var card in hand)
         {
-            Debug.Log($"´´½¨¿¨ÅÆ:{card?.type}");
+            Debug.Log($"åˆ›å»ºå¡ç‰Œ:{card?.type}");
             CreateCardUI(card);
         }
     }
@@ -51,31 +51,40 @@ public class CardUIManager : MonoBehaviour
         GameObject cardObj = Instantiate(cardPrefab, handContainer);
         cardObj.GetComponent<Image>().sprite = card.icon;
 
-        // ÉèÖÃ¿¨ÅÆÊı¾İ
+        // è®¾ç½®å¡ç‰Œæ•°æ®
         var display = cardObj.GetComponent<CardDisplay>();
         if (display != null) display.cardData = card;
-
-        // Ìí¼ÓÍÏ×§ÊÂ¼ş
+        {
+            Debug.Log($"åˆ›å»ºå¡ç‰ŒUI: {card.type}");
+            display.SetCardData(card); // ç¡®ä¿è°ƒç”¨
+        }
+        // æ·»åŠ æ‹–æ‹½äº‹ä»¶
         AddDragEvents(cardObj);
     }
 
     private void AddDragEvents(GameObject cardObj)
     {
+        Debug.Log($"æ­£åœ¨ä¸º {cardObj.name} æ·»åŠ æ‹–æ‹½äº‹ä»¶"); // æ£€æŸ¥æ˜¯å¦æ‰§è¡Œ
         EventTrigger trigger = cardObj.GetComponent<EventTrigger>() ?? cardObj.AddComponent<EventTrigger>();
-
-        // ¿ªÊ¼ÍÏ×§
+        // æ£€æŸ¥ EventTrigger æ˜¯å¦æˆåŠŸæ·»åŠ 
+        if (trigger == null)
+        {
+            Debug.LogError("EventTrigger æ·»åŠ å¤±è´¥ï¼");
+            return;
+        }
+        // å¼€å§‹æ‹–æ‹½
         EventTrigger.Entry beginDrag = new EventTrigger.Entry();
         beginDrag.eventID = EventTriggerType.BeginDrag;
         beginDrag.callback.AddListener((data) => OnBeginDrag(cardObj, (PointerEventData)data));
         trigger.triggers.Add(beginDrag);
 
-        // ÍÏ×§ÖĞ
+        // æ‹–æ‹½ä¸­
         EventTrigger.Entry drag = new EventTrigger.Entry();
         drag.eventID = EventTriggerType.Drag;
         drag.callback.AddListener((data) => OnDrag((PointerEventData)data));
         trigger.triggers.Add(drag);
 
-        // ½áÊøÍÏ×§
+        // ç»“æŸæ‹–æ‹½
         EventTrigger.Entry endDrag = new EventTrigger.Entry();
         endDrag.eventID = EventTriggerType.EndDrag;
         endDrag.callback.AddListener((data) => OnEndDrag((PointerEventData)data));
@@ -84,14 +93,14 @@ public class CardUIManager : MonoBehaviour
 
     private void OnBeginDrag(GameObject card, PointerEventData eventData)
     {
-        // »ñÈ¡¿¨ÅÆÏÔÊ¾×é¼ş
+        // è·å–å¡ç‰Œæ˜¾ç¤ºç»„ä»¶
         var display = card.GetComponent<CardDisplay>();
         if (display != null)
         {
-            display.SetDraggingStatus(true); // ¿ªÊ¼ÍÏ×§Ê±¸üĞÂ×´Ì¬
+            display.SetDraggingStatus(true); // å¼€å§‹æ‹–æ‹½æ—¶æ›´æ–°çŠ¶æ€
         }
 
-        // ´´½¨ÍÏ×§¸±±¾
+        // åˆ›å»ºæ‹–æ‹½å‰¯æœ¬
         draggedCard = Instantiate(card, canvas.transform);
         draggedCard.transform.SetAsLastSibling();
 
@@ -100,6 +109,7 @@ public class CardUIManager : MonoBehaviour
         img.color = new Color(1, 1, 1, 0.7f);
 
         draggedCardData = card.GetComponent<CardDisplay>().cardData;
+       
     }
 
     private void OnDrag(PointerEventData eventData)
@@ -115,22 +125,23 @@ public class CardUIManager : MonoBehaviour
         if (draggedCard == null) return;
 
         bool used = IsOverPlayArea(eventData);
-        // »Ö¸´Ô­¿¨ÅÆ×´Ì¬
-        var originalCard = eventData.pointerDrag; // »ñÈ¡±»ÍÏ×§µÄÔ­Ê¼¿¨ÅÆ
+        // æ¢å¤åŸå¡ç‰ŒçŠ¶æ€
+        var originalCard = eventData.pointerDrag; // è·å–è¢«æ‹–æ‹½çš„åŸå§‹å¡ç‰Œ
         if (originalCard != null)
         {
             var display = originalCard.GetComponent<CardDisplay>();
             if (display != null)
             {
-                display.SetDraggingStatus(false); // ½áÊøÍÏ×§Ê±»Ö¸´×´Ì¬
+                display.SetDraggingStatus(false); // ç»“æŸæ‹–æ‹½æ—¶æ¢å¤çŠ¶æ€
             }
         }
         Destroy(draggedCard);
-
+      
         if (used && draggedCardData != null)
         {
             if (draggedCardData.type == CardData.CardType.Move)
             {
+         
                 StartMoveTargetSelection();
             }
             else
@@ -150,36 +161,41 @@ public class CardUIManager : MonoBehaviour
 
         if (HexGridSystem.Instance == null)
         {
-            Debug.LogError("HexGridSystem ÊµÀıÎ´ÕÒµ½£¡");
+            Debug.LogError("HexGridSystem å®ä¾‹æœªæ‰¾åˆ°ï¼");
             return;
         }
 
-        // »ñÈ¡Íæ¼Òµ±Ç°Î»ÖÃ
+        // è·å–ç©å®¶å½“å‰ä½ç½®
         Vector3Int playerHex = HexGridSystem.Instance.WorldToCell(PlayerController.Instance.transform.position);
 
-        // ¸ßÁÁÏàÁÚ¿ÉĞĞ×ß¸ñ×Ó
+        // é«˜äº®ç›¸é‚»å¯è¡Œèµ°æ ¼å­
         var neighbors = HexGridSystem.Instance.GetWalkableNeighbors(playerHex);
         foreach (var pos in neighbors)
         {
             HexGridSystem.Instance.HighlightHex(pos, true);
         }
 
-        // ×¢²áµã»÷ÊÂ¼ş
+        // æ³¨å†Œç‚¹å‡»äº‹ä»¶
         TilemapClickHandler.OnHexClicked += HandleHexClick;
     }
 
     private void HandleHexClick(Vector3Int hexPosition)
     {
-        if (!isSelectingMoveTarget) return;
-
-        // ÒÆ¶¯Íæ¼Ò
+        Debug.Log($"ç‚¹å‡»é«˜äº®æ ¼å­: {hexPosition}isSelectingMoveTarget{isSelectingMoveTarget}");
+        if (!isSelectingMoveTarget)
+        {
+            Debug.LogWarning("å½“å‰æœªåœ¨é€‰æ‹©ç§»åŠ¨ç›®æ ‡çŠ¶æ€ï¼");
+            return;
+        }
+        Debug.Log("å‡†å¤‡ç§»åŠ¨ç©å®¶...");
+        // ç§»åŠ¨ç©å®¶
         PlayerController.Instance.MoveToHex(hexPosition);
-
-        // ½áÊøÑ¡Ôñ
+        // å®é™…æ¶ˆè€—å¡ç‰Œ
+        CardManager.Instance.PlayCard(draggedCardData);
+        // ç»“æŸé€‰æ‹©
         EndMoveTargetSelection();
 
-        // Êµ¼ÊÏûºÄ¿¨ÅÆ
-        CardManager.Instance.PlayCard(draggedCardData);
+        
     }
 
     private void EndMoveTargetSelection()
@@ -196,11 +212,14 @@ public class CardUIManager : MonoBehaviour
 
         foreach (var result in results)
         {
+            
             if (result.gameObject.CompareTag("PlayArea"))
             {
+
                 return true;
             }
         }
+
         return false;
     }
 }

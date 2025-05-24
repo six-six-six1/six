@@ -5,23 +5,23 @@ using UnityEngine.UI;
 using TMPro;
 public class CardDisplay : MonoBehaviour
 {
-    public CardData cardData; // ¹ØÁªµÄ¿¨ÅÆÊı¾İ
-    //public TextMeshProUGUI statusText; // ÍÏ×§Ê±ÏÔÊ¾×´Ì¬µÄÎÄ±¾
-    //public TextMeshProUGUI typeText;   // ÏÔÊ¾¿¨ÅÆÀàĞÍµÄÎÄ±¾
-    // ¿ÉÒÔÔÚ³õÊ¼»¯Ê±ÉèÖÃ
+    public CardData cardData; // å…³è”çš„å¡ç‰Œæ•°æ®
+    //public TextMeshProUGUI statusText; // æ‹–æ‹½æ—¶æ˜¾ç¤ºçŠ¶æ€çš„æ–‡æœ¬
+    //public TextMeshProUGUI typeText;   // æ˜¾ç¤ºå¡ç‰Œç±»å‹çš„æ–‡æœ¬
+    // å¯ä»¥åœ¨åˆå§‹åŒ–æ—¶è®¾ç½®
     public void SetCardData(CardData data)
     {
-
+        Debug.Log($"è®¾ç½®å¡ç‰Œæ•°æ®: {data?.type}"); // æ£€æŸ¥æ•°æ®æ˜¯å¦æœ‰æ•ˆ
         cardData = data;
-        // ÕâÀï¿ÉÒÔ¸üĞÂUIÏÔÊ¾
+        // è¿™é‡Œå¯ä»¥æ›´æ–°UIæ˜¾ç¤º
         GetComponent<Image>().sprite = data.icon;
     }
     public void SetDraggingStatus(bool isDragging)
     {
-        //statusText.text = isDragging ? "Ê¹ÓÃÖĞ..." : "";
+        //statusText.text = isDragging ? "ä½¿ç”¨ä¸­..." : "";
         //statusText.color = isDragging ? Color.yellow : Color.white;
 
-        //// Ò²¿ÉÒÔµ÷ÕûÆäËûÊÓ¾õĞ§¹û
+        //// ä¹Ÿå¯ä»¥è°ƒæ•´å…¶ä»–è§†è§‰æ•ˆæœ
         //if (isDragging)
         //{
         //    typeText.fontStyle = FontStyles.Bold;
