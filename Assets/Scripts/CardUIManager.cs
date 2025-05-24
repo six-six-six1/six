@@ -12,6 +12,7 @@ public class CardUIManager : MonoBehaviour
     private GameObject draggedCard;
     private CardData draggedCardData;
     private Canvas canvas;
+    private bool isSelectingMoveTarget;
 
     private void Awake()
     {
@@ -128,11 +129,64 @@ public class CardUIManager : MonoBehaviour
 
         if (used && draggedCardData != null)
         {
-            CardManager.Instance.PlayCard(draggedCardData);
+            if (draggedCardData.type == CardData.CardType.Move)
+            {
+                StartMoveTargetSelection();
+            }
+            else
+            {
+                CardManager.Instance.PlayCard(draggedCardData);
+            }
         }
 
         draggedCard = null;
         draggedCardData = null;
+    }
+
+    private void StartMoveTargetSelection()
+    {
+        isSelectingMoveTarget = true;
+        HexGridSystem.Instance.ClearAllHighlights();
+
+        if (HexGridSystem.Instance == null)
+        {
+            Debug.LogError("HexGridSystem 实例未找到！");
+            return;
+        }
+
+        // 获取玩家当前位置
+        Vector3Int playerHex = HexGridSystem.Instance.WorldToCell(PlayerController.Instance.transform.position);
+
+        // 高亮相邻可行走格子
+        var neighbors = HexGridSystem.Instance.GetWalkableNeighbors(playerHex);
+        foreach (var pos in neighbors)
+        {
+            HexGridSystem.Instance.HighlightHex(pos, true);
+        }
+
+        // 注册点击事件
+        TilemapClickHandler.OnHexClicked += HandleHexClick;
+    }
+
+    private void HandleHexClick(Vector3Int hexPosition)
+    {
+        if (!isSelectingMoveTarget) return;
+
+        // 移动玩家
+        PlayerController.Instance.MoveToHex(hexPosition);
+
+        // 结束选择
+        EndMoveTargetSelection();
+
+        // 实际消耗卡牌
+        CardManager.Instance.PlayCard(draggedCardData);
+    }
+
+    private void EndMoveTargetSelection()
+    {
+        isSelectingMoveTarget = false;
+        HexGridSystem.Instance.ClearAllHighlights();
+        TilemapClickHandler.OnHexClicked -= HandleHexClick;
     }
 
     private bool IsOverPlayArea(PointerEventData eventData)

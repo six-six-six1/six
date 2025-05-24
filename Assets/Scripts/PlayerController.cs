@@ -35,16 +35,45 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void MoveToHex(Vector3 hexPosition)
+    public void MoveToHex(Vector3Int hexCoords)
     {
-        targetPosition = hexPosition;
-        isMoving = true;
+        if (!HexGridSystem.Instance.IsHexWalkable(hexCoords))
+        {
+            Debug.LogWarning($"目标位置 {hexCoords} 不可行走");
+            return;
+        }
+
+        if (isMoving)
+        {
+            Debug.LogWarning("正在移动中，无法接受新指令");
+            return;
+        }
+
+        StartCoroutine(MovementRoutine(hexCoords));
     }
+
     private void OnTriggerEnter2D(Collider2D other)//胜利条件
     {
         if (other.CompareTag("ExitPoint"))
         {
             GameManager.Instance.GameOver(true);
         }
+    }
+
+    private IEnumerator MovementRoutine(Vector3Int target)
+    {
+        isMoving = true;
+
+        while (Vector3.Distance(transform.position, target) > 0.01f)
+        {
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                HexGridSystem.Instance.GetHexCenterPosition(target),
+                moveSpeed * Time.deltaTime
+            );
+            yield return null;
+        }
+
+        isMoving = false;
     }
 }
