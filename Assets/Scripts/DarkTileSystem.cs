@@ -22,7 +22,7 @@ public class DarkTileSystem : MonoBehaviour
         }
 
         if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        else Destroy(this);
     }
 
     public void ExpandDarkTiles(int expandCount)

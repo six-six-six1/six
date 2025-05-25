@@ -15,13 +15,24 @@ public class HexGridSystem : MonoBehaviour
         // 单例初始化
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Destroy(this);
             Debug.LogWarning("Multiple HexGridSystem instances detected.");
+            return;
         }
-        else
+        Instance = this;
+        //DontDestroyOnLoad(gameObject); // 跨场景保留对象（如需）
+
+        // 确保tilemap引用不为空
+        if (tilemap == null)
         {
-            Instance = this;
+            tilemap = GetComponent<Tilemap>();
+            if (tilemap == null)
+            {
+                Debug.LogError("Tilemap未绑定且当前GameObject无Tilemap组件！");
+            }
         }
+
+        Debug.Log($"HexGridSystem初始化完成，挂载对象：{gameObject.name}");
     }
 
     // 六边形邻居方向 (平顶六边形)
@@ -65,6 +76,11 @@ public class HexGridSystem : MonoBehaviour
     // 坐标转换方法
     public Vector3Int WorldToCell(Vector3 worldPosition)
     {
+        if (tilemap == null)
+        {
+            Debug.LogError("Tilemap引用丢失！");
+            return Vector3Int.zero;
+        }
         return tilemap.WorldToCell(worldPosition);
     }
 

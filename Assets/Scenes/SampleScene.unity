@@ -1385,7 +1385,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1252675018}
-  - component: {fileID: 1252675017}
+  - component: {fileID: 1252675019}
   m_Layer: 0
   m_Name: DarkTileSystem
   m_TagString: Untagged
@@ -1393,22 +1393,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1252675017
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1252675016}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bff8227a75af2f648aac477d5a136a9f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tilemap: {fileID: 1481310617}
-  baseMap: {fileID: 1754563436}
-  darkTile: {fileID: 11400000, guid: 1001e090fc435824a8e739e4ecf584bd, type: 2}
-  normalTile: {fileID: 11400000, guid: 37424bda4e6b8cb44a91d252446ada9b, type: 2}
 --- !u!4 &1252675018
 Transform:
   m_ObjectHideFlags: 0
@@ -1424,6 +1408,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1252675019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1252675016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bff8227a75af2f648aac477d5a136a9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tilemap: {fileID: 1481310617}
+  baseMap: {fileID: 1754563436}
+  darkTile: {fileID: 11400000, guid: 1001e090fc435824a8e739e4ecf584bd, type: 2}
+  normalTile: {fileID: 11400000, guid: 37424bda4e6b8cb44a91d252446ada9b, type: 2}
 --- !u!1 &1269850286
 GameObject:
   m_ObjectHideFlags: 0

@@ -184,14 +184,21 @@ public class CardUIManager : MonoBehaviour
         isSelectingMoveTarget = true;
         HexGridSystem.Instance.ClearAllHighlights();
 
-        if (HexGridSystem.Instance == null)
+        if (HexGridSystem.Instance == null || PlayerController.Instance == null)
         {
-            Debug.LogError("HexGridSystem 实例未找到！");
+            Debug.LogError("HexGridSystem或PlayerController实例未初始化！");
             return;
         }
 
         // 获取玩家当前位置
         Vector3Int playerHex = HexGridSystem.Instance.WorldToCell(PlayerController.Instance.transform.position);
+
+        // 检查playerHex是否为有效坐标
+        if (!HexGridSystem.Instance.IsHexValid(playerHex))
+        {
+            Debug.LogError("玩家位置无效！");
+            return;
+        }
 
         // 高亮相邻可行走格子
         var neighbors = HexGridSystem.Instance.GetWalkableNeighbors(playerHex);
