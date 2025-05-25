@@ -88,5 +88,8 @@ public class PlayerController : MonoBehaviour
         transform.position = targetPos; // 强制位置对齐
         Debug.Log("移动完成");
         isMoving = false;
+
+        CardUIManager.Instance?.EndMoveTargetSelection();
+        Debug.Log("移动完成并清除高亮");
     }
 }

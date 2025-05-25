@@ -29,19 +29,11 @@ public class TilemapClickHandler : MonoBehaviour, IPointerClickHandler
         Debug.Log($"屏幕坐标: {eventData.position} → 世界坐标: {worldPos}");
         Vector3Int cellPos = tilemap.WorldToCell(worldPos);
         Debug.Log($"格子坐标: {cellPos}, 是否有Tile: {tilemap.HasTile(cellPos)}");
-        if (tilemap.HasTile(cellPos))
-        {
-            OnHexClicked?.Invoke(cellPos);
-        }
+        //if (tilemap.HasTile(cellPos))
+        //{
+        //    OnHexClicked?.Invoke(cellPos);
+        //}
 
-        // 添加调试信息
-        Debug.Log($"点击位置：屏幕 {eventData.position} -> 世界 {worldPos} -> 格子 {cellPos}");
-
-        if (tilemap.HasTile(cellPos))
-        {
-            Debug.Log("触发 Hex 点击事件");
-            OnHexClicked?.Invoke(cellPos);
-        }
     }
 
 
@@ -54,7 +46,7 @@ public class TilemapClickHandler : MonoBehaviour, IPointerClickHandler
             Vector3Int cellPos = tilemap.WorldToCell(worldPos);
             var temp_Tilemap = tilemap.GetTile(cellPos);
 
-            Debug.LogError(tilemap.GetColor(cellPos));
+            //Debug.LogError(tilemap.GetColor(cellPos));
             Debug.Log(
                 $"点击位置：屏幕 {Input.mousePosition} -> 世界 {worldPos} -> 格子坐标 {cellPos}, 是否有Tile: {tilemap.HasTile(cellPos)}");
             if (tilemap.HasTile(cellPos))

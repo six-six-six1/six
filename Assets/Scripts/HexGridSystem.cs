@@ -103,6 +103,7 @@ public class HexGridSystem : MonoBehaviour
         foreach (var pos in originalTiles.Keys)
         {
             tilemap.SetTile(pos, originalTiles[pos]);
+            tilemap.SetColor(pos, Color.white); // 强制重置颜色
         }
 
         originalTiles.Clear();

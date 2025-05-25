@@ -123,8 +123,8 @@ public class CardUIManager : MonoBehaviour
     private void OnEndDrag(PointerEventData eventData)
     {
         if (draggedCard == null) return;
-
         bool used = IsOverPlayArea(eventData);
+
         // 恢复原卡牌状态
         var originalCard = eventData.pointerDrag; // 获取被拖拽的原始卡牌
         if (originalCard != null)
@@ -139,15 +139,23 @@ public class CardUIManager : MonoBehaviour
       
         if (used && draggedCardData != null)
         {
+            // 立即消耗卡牌，无论是否为移动卡
+            bool success = CardManager.Instance.PlayCard(draggedCardData);
+            if (!success)
+            {
+                Debug.LogError("卡牌使用失败！");
+                return;
+            }
+
             if (draggedCardData.type == CardData.CardType.Move)
             {
          
                 StartMoveTargetSelection();
             }
-            else
-            {
-                CardManager.Instance.PlayCard(draggedCardData);
-            }
+            //else
+            //{
+            //    CardManager.Instance.PlayCard(draggedCardData);
+            //}
         }
 
         draggedCard = null;
@@ -198,11 +206,12 @@ public class CardUIManager : MonoBehaviour
         
     }
 
-    private void EndMoveTargetSelection()
+    public void EndMoveTargetSelection()
     {
         isSelectingMoveTarget = false;
         HexGridSystem.Instance.ClearAllHighlights();
         TilemapClickHandler.OnHexClicked -= HandleHexClick;
+        Debug.Log("已取消高亮并解除点击事件绑定");
     }
 
     private bool IsOverPlayArea(PointerEventData eventData)
