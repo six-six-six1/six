@@ -1,5 +1,3 @@
-// TilemapClickHandler.cs 新建脚本
-
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -49,6 +47,13 @@ public class TilemapClickHandler : MonoBehaviour, IPointerClickHandler
             //Debug.LogError(tilemap.GetColor(cellPos));
             Debug.Log(
                 $"点击位置：屏幕 {Input.mousePosition} -> 世界 {worldPos} -> 格子坐标 {cellPos}, 是否有Tile: {tilemap.HasTile(cellPos)}");
+
+            if (HexGridSystem.Instance == null || HexGridSystem.Instance.highlightTileList == null)
+            {
+                Debug.LogError("HexGridSystem 或 highlightTileList 未初始化！");
+                return;
+            }
+
             if (tilemap.HasTile(cellPos))
             {
 

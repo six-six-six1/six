@@ -5,16 +5,26 @@ using UnityEngine.Tilemaps;
 
 public class DarkTileSystem : MonoBehaviour
 {
+    [Header("Tilemap References")]
+    public Tilemap tilemap;
     public Tilemap baseMap;
     public TileBase darkTile;
     public TileBase normalTile;
     public static DarkTileSystem Instance;
 
+    private Dictionary<Vector3Int, TileBase> originalTiles = new Dictionary<Vector3Int, TileBase>();
+
     private void Awake()
     {
+        if (tilemap == null)
+        {
+            tilemap = GetComponent<Tilemap>();
+        }
+
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
+
     public void ExpandDarkTiles(int expandCount)
     {
         List<Vector3Int> newDarkTiles = new List<Vector3Int>();
@@ -69,6 +79,36 @@ public class DarkTileSystem : MonoBehaviour
         if (baseMap.GetTile(playerHex) == darkTile)
         {
             GameManager.Instance.GameOver(false);
+        }
+    }
+
+    public void ClearDarkTile(Vector3Int position)
+    {
+        // 验证 Tilemap 和 darkTile 是否已赋值
+        if (tilemap == null || darkTile == null)
+        {
+            Debug.LogError("Tilemap 或 darkTile 未配置！");
+            return;
+        }
+
+        // 检查目标位置是否是 DarkHexTile
+        if (baseMap.GetTile(position) == darkTile)
+        {
+            // 恢复原始 Tile（如果已存储）
+            if (originalTiles.TryGetValue(position, out TileBase original))
+            {
+                baseMap.SetTile(position, original);
+                originalTiles.Remove(position);
+                Debug.Log($"已清除DarkHexTile：{position}，恢复为 {original.name}");
+            }
+            else
+            {
+                // 默认恢复为预设的normalTile（白色地块）
+                baseMap.SetTile(position, normalTile);
+                Debug.LogWarning($"位置 {position} 无原始记录，恢复为默认Tile");
+            }
+            // 强制刷新显示
+            baseMap.RefreshTile(position);
         }
     }
 }

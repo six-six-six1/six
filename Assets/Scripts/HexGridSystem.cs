@@ -34,24 +34,32 @@ public class HexGridSystem : MonoBehaviour
             // 奇数行方向
             new Vector3Int[]
             {
-                new Vector3Int(1, 0, 0), // 右 (East)
-                new Vector3Int(1, 1, 0), // 右上 (Northeast)
-                new Vector3Int(0, 1, 0), // 左上 (Northwest)
-                new Vector3Int(-1, 0, 0), // 左 (West)
-                new Vector3Int(0, -1, 0), // 左下 (Southwest)
-                new Vector3Int(1, -1, 0) // 右下 (Southeast)
+                new Vector3Int(1, 0, 0), // 右
+                new Vector3Int(1, 1, 0), // 右上
+                new Vector3Int(0, 1, 0), // 左上
+                new Vector3Int(-1, 0, 0), // 左
+                new Vector3Int(0, -1, 0), // 左下
+                new Vector3Int(1, -1, 0) // 右下
             }
             :
             // 偶数行方向
             new Vector3Int[]
             {
-                new Vector3Int(1, 0, 0), // 右 (East)
-                new Vector3Int(0, 1, 0), // 右上 (Northeast)
-                new Vector3Int(-1, 1, 0), // 左上 (Northwest)
-                new Vector3Int(-1, 0, 0), // 左 (West)
-                new Vector3Int(-1, -1, 0), // 左下 (Southwest)
-                new Vector3Int(0, -1, 0) // 右下 (Southeast)
+                new Vector3Int(1, 0, 0), // 右
+                new Vector3Int(0, 1, 0), // 右上
+                new Vector3Int(-1, 1, 0), // 左上
+                new Vector3Int(-1, 0, 0), // 左
+                new Vector3Int(-1, -1, 0), // 左下
+                new Vector3Int(0, -1, 0) // 右下
             };
+    }
+
+    public Vector3Int[] GetNeighborDirectionsForPosition(Vector3Int position)
+    {
+        // 判断当前行是否为奇数行
+        bool isOddRow = (position.y % 2) != 0;
+        // 调用私有方法获取方向
+        return GetNeighborDirections(isOddRow);
     }
 
     // 坐标转换方法
@@ -77,10 +85,9 @@ public class HexGridSystem : MonoBehaviour
     public List<TileBase> highlightTileList = new();
     private Dictionary<Vector3Int, TileBase> originalTiles = new Dictionary<Vector3Int, TileBase>();
 
-    // HexGridSystem.cs 修改高亮逻辑
     public void HighlightHex(Vector3Int position, bool highlight)
     {
-        if (!IsHexWalkable(position)) return; // 新增判断
+        if (!IsHexValid(position)) return; // 新增判断
 
         Debug.Log("高亮");
         if (highlight)
@@ -127,6 +134,21 @@ public class HexGridSystem : MonoBehaviour
         return neighbors;
     }
 
+    public List<Vector3Int> GetTilesInDirection(Vector3Int startPos, Vector3Int direction, int maxDistance)
+    {
+        List<Vector3Int> tiles = new List<Vector3Int>();
+        Vector3Int currentPos = startPos;
+
+        for (int i = 0; i < maxDistance; i++)
+        {
+            currentPos += direction;
+            if (!IsHexValid(currentPos)) break;
+            tiles.Add(currentPos);
+        }
+
+        return tiles;
+    }
+
     // 在Scene视图中可视化邻居方向
     private void OnDrawGizmosSelected()
     {
@@ -149,10 +171,16 @@ public class HexGridSystem : MonoBehaviour
     // 新增可行走性验证
     public bool IsHexWalkable(Vector3Int hexCoords)
     {
-        // 这里需要根据你的游戏规则实现
-        // 示例：检查障碍物和黑雾
-        return tilemap.GetTile(hexCoords) != null
-               && tilemap.GetTile(hexCoords).name != "BlockPillarHexTile"
-               && tilemap.GetTile(hexCoords).name != "DarkHexTile";
+        TileBase tile = tilemap.GetTile(hexCoords);
+        return tile != null
+            && tile.name != "BlockPillarHexTile"
+            && tile.name != "DarkHexTile"; // DarkHexTile不可行走，但可高亮
+    }
+
+    public bool IsDarkHexTile(Vector3Int position)
+    {
+        TileBase tile = tilemap.GetTile(position);
+        // 检查 Tile 名称是否为 "DarkHexTile"
+        return tile != null && tile.name == "DarkHexTile";
     }
 }

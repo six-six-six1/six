@@ -15,5 +15,5 @@ public class CardData : ScriptableObject
     public int moveDistance = 1;
 
     [Header("Shock Card")]
-    public int shockDistance = 3;
+    public int maxClearDistance = 3;
 }

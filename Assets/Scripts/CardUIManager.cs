@@ -100,6 +100,15 @@ public class CardUIManager : MonoBehaviour
             display.SetDraggingStatus(true); // 开始拖拽时更新状态
         }
 
+        // 确保获取卡牌数据
+        draggedCardData = display?.cardData; // 使用 null 条件运算符避免异常
+        if (draggedCardData == null)
+        {
+            Debug.LogError("拖拽卡牌数据丢失！");
+            return;
+        }
+
+
         // 创建拖拽副本
         draggedCard = Instantiate(card, canvas.transform);
         draggedCard.transform.SetAsLastSibling();
@@ -139,27 +148,35 @@ public class CardUIManager : MonoBehaviour
       
         if (used && draggedCardData != null)
         {
-            // 立即消耗卡牌，无论是否为移动卡
+            // 立即消耗卡牌
             bool success = CardManager.Instance.PlayCard(draggedCardData);
+
             if (!success)
             {
                 Debug.LogError("卡牌使用失败！");
                 return;
             }
 
-            if (draggedCardData.type == CardData.CardType.Move)
+            // 根据卡牌类型进入目标选择模式
+            switch (draggedCardData.type)
             {
-         
-                StartMoveTargetSelection();
+                case CardData.CardType.Move:
+                    StartMoveTargetSelection();
+                    break;
+                case CardData.CardType.Shock:
+                    StartShockDirectionSelection();
+                    break;
+                default:
+                    // 非目标选择类卡牌直接清除数据
+                    draggedCardData = null;
+                    break;
             }
-            //else
-            //{
-            //    CardManager.Instance.PlayCard(draggedCardData);
-            //}
         }
-
-        draggedCard = null;
-        draggedCardData = null;
+        else
+        {
+            // 未使用卡牌时清除数据
+            draggedCardData = null;
+        }
     }
 
     private void StartMoveTargetSelection()
@@ -195,6 +212,14 @@ public class CardUIManager : MonoBehaviour
             Debug.LogWarning("当前未在选择移动目标状态！");
             return;
         }
+
+        // 检查卡牌数据是否有效
+        if (draggedCardData == null)
+        {
+            Debug.LogError("卡牌数据丢失，无法执行移动！");
+            return;
+        }
+
         Debug.Log("准备移动玩家...");
         // 移动玩家
         PlayerController.Instance.MoveToHex(hexPosition);
@@ -212,6 +237,9 @@ public class CardUIManager : MonoBehaviour
         HexGridSystem.Instance.ClearAllHighlights();
         TilemapClickHandler.OnHexClicked -= HandleHexClick;
         Debug.Log("已取消高亮并解除点击事件绑定");
+
+        draggedCardData = null;
+        Debug.Log("移动目标选择结束，卡牌数据已清除");
     }
 
     private bool IsOverPlayArea(PointerEventData eventData)
@@ -231,4 +259,76 @@ public class CardUIManager : MonoBehaviour
 
         return false;
     }
+
+    private void StartShockDirectionSelection()
+    {
+        HexGridSystem.Instance.ClearAllHighlights();
+        Vector3Int playerPos = HexGridSystem.Instance.WorldToCell(PlayerController.Instance.transform.position);
+
+        // 调用新方法获取方向数组
+        Vector3Int[] directions = HexGridSystem.Instance.GetNeighborDirectionsForPosition(playerPos);
+
+        // 高亮所有可能方向的首个格子
+        foreach (var dir in directions)
+        {
+            Vector3Int neighborPos = playerPos + dir;
+            // 仅检查格子是否存在Tile，不限制是否为DarkHexTile
+            if (HexGridSystem.Instance.IsHexValid(neighborPos))
+            {
+                HexGridSystem.Instance.HighlightHex(neighborPos, true);
+            }
+        }
+        TilemapClickHandler.OnHexClicked += HandleShockDirectionSelected;
+    }
+
+    private void HandleShockDirectionSelected(Vector3Int selectedPos)
+    {
+        // 空引用检查
+        if (HexGridSystem.Instance == null)
+        {
+            Debug.LogError("HexGridSystem 实例未找到！");
+            return;
+        }
+        if (PlayerController.Instance == null)
+        {
+            Debug.LogError("PlayerController 实例未找到！");
+            return;
+        }
+        if (draggedCardData == null)
+        {
+            Debug.LogError("卡牌数据丢失！");
+            return;
+        }
+
+        Vector3Int playerPos = HexGridSystem.Instance.WorldToCell(PlayerController.Instance.transform.position);
+        Vector3Int direction = selectedPos - playerPos;
+
+        // 获取该方向上最多3格
+        List<Vector3Int> tilesToClear = HexGridSystem.Instance.GetTilesInDirection(
+            playerPos, direction, draggedCardData.maxClearDistance
+        );
+
+        // 清除DarkHexTile
+        foreach (var pos in tilesToClear)
+        {
+            if (HexGridSystem.Instance.IsDarkHexTile(pos))
+            {
+                Debug.Log($"尝试清除DarkHexTile：{pos}");
+                DarkTileSystem.Instance.ClearDarkTile(pos);
+            }
+        }
+
+        EndShockSelection();
+    }
+
+    private void EndShockSelection()
+    {
+        HexGridSystem.Instance.ClearAllHighlights();
+        TilemapClickHandler.OnHexClicked -= HandleShockDirectionSelected;
+
+        // 操作完成后清除卡牌数据
+        draggedCardData = null;
+        Debug.Log("Shock方向选择结束，卡牌数据已清除");
+    }
+
 }
