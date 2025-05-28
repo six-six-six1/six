@@ -42,6 +42,12 @@ public class TeleportSystem : MonoBehaviour
                 PlayerController.Instance.SetPlayerPos(targetPos);
                 RemoveTeleport(teleportData);
             }
+            else if (teleportData.targetTelportPos == position)
+            {
+                Vector3 targetPos = HexGridSystem.Instance.GetHexCenterPosition(teleportData.startTelportPos);
+                PlayerController.Instance.SetPlayerPos(targetPos);
+                RemoveTeleport(teleportData);
+            }
         }
     }
 
@@ -73,7 +79,7 @@ public class TeleportSystem : MonoBehaviour
         {
             index = Random.Range(0, createPosList.Count);
         }
-
+        Debug.Log("当前可用于传送门的格子数量："+ createPosList.Count);
         currentTeleportData.startTelportPos = createPosList[index];
         Debug.Log($"传送门起点：{currentTeleportData.startTelportPos}");
         baseMap.SetTile(currentTeleportData.startTelportPos, teleporHexTile);

@@ -168,7 +168,8 @@ public class CardUIManager : MonoBehaviour
         }
         else
         {
-            Debug.Log($"使用手牌数已达到{useCradNum}");
+            Debug.Log($"使用手牌数已达到{useCradNum}，自动结束回合");
+            TurnManager.Instance.EndPlayerTurn();
             return;
         }
 
