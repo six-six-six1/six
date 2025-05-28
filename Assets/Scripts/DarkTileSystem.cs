@@ -25,26 +25,75 @@ public class DarkTileSystem : MonoBehaviour
         else Destroy(this);
     }
 
-    public void ExpandDarkTiles(int expandCount)
+    public void ExpandDarkTiles(int expandCount,bool isUnlimited = false)
     {
         List<Vector3Int> newDarkTiles = new List<Vector3Int>();
 
-        // 找出所有现有黑暗地块
+        Vector3Int playerHex = baseMap.WorldToCell(PlayerController.Instance.transform.position);
+
+        // 先遍历地图中所有的 darkTile 位置
+        List<Vector3Int> allDarkPositions = new List<Vector3Int>();
         foreach (var pos in baseMap.cellBounds.allPositionsWithin)
         {
             if (baseMap.GetTile(pos) == darkTile)
             {
-                // 检查六个相邻方向
+                allDarkPositions.Add(pos);
+            }
+        }
+        // 按照距离玩家的远近进行排序（近的排前面）
+        allDarkPositions.Sort((a, b) => Vector3Int.Distance(a, playerHex).CompareTo(Vector3Int.Distance(b, playerHex)));
+
+        foreach (var pos in allDarkPositions)
+        {
+            if (baseMap.GetTile(pos) == darkTile)
+            {
+                Vector3Int bestNeighbor = Vector3Int.zero;
+                float minDistance = float.MaxValue;
+                bool foundNeighbor = false;
+
+                Vector3Int[] neighborDirs = HexGridSystem.Instance.GetNeighborDirectionsForPosition(pos);
+                Vector3Int direction = Vector3Int.zero;
+
+                // 检查六个方向的邻居
                 for (int i = 0; i < 6; i++)
                 {
-                    Vector3Int neighbor = GetHexNeighbor(pos, i);
-                    if (baseMap.GetTile(neighbor) == normalTile &&
-                        !newDarkTiles.Contains(neighbor) &&
-                        newDarkTiles.Count < expandCount)
+
+                    Vector3Int correctDir = neighborDirs[i];
+
+                    Vector3Int neighbor = pos + correctDir;
+                    // 如果邻居正好是玩家所在位置，并且该格子还为 normalTile，则优先选中
+                    if (neighbor == playerHex && baseMap.GetTile(neighbor) == normalTile)
                     {
-                        newDarkTiles.Add(neighbor);
+                        bestNeighbor = neighbor;
+                        foundNeighbor = true;
+                        break; // 直接确定向玩家方向扩展
+                    }
+ 
+
+                    // 否则，对于仍为 normalTile 的邻居，计算其到玩家格子的距离
+                    if (baseMap.GetTile(neighbor) == normalTile)
+                    {
+                        float distance = Vector3Int.Distance(neighbor, playerHex);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            direction = correctDir;
+                            bestNeighbor = neighbor;
+                            foundNeighbor = true;
+                        }
                     }
                 }
+
+                // 如果找到合适的邻居，并且没有重复添加且未超过扩展数量
+                if (foundNeighbor && !newDarkTiles.Contains(bestNeighbor) && (newDarkTiles.Count < expandCount || isUnlimited))//isUnlimited表示没有限制
+                {
+                    bool isIntercept = BlockPillarSystem.Instance.IsIntercept(bestNeighbor, direction);
+                    if (!isIntercept)
+                    {
+                        newDarkTiles.Add(bestNeighbor);
+                    }
+                }
+
             }
         }
 
@@ -62,11 +111,11 @@ public class DarkTileSystem : MonoBehaviour
         // 六边形网格的六个方向
         Vector3Int[] hexDirections = new Vector3Int[]
         {
-            new Vector3Int(1, 0, 0),   // 右
-            new Vector3Int(1, -1, 0),  // 右上
-            new Vector3Int(0, -1, 0),  // 左上
-            new Vector3Int(-1, 0, 0),  // 左
-            new Vector3Int(-1, 1, 0),  // 左下
+            new Vector3Int(1, 0, 0),   // 上
+            new Vector3Int(1, -1, 0),  // 左上
+            new Vector3Int(1, 1, 0),  // 右上
+            new Vector3Int(-1, 0, 0),  // 下
+            new Vector3Int(0, -1, 0),  // 左下
             new Vector3Int(0, 1, 0)    // 右下
         };
 

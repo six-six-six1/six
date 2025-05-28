@@ -42,11 +42,17 @@ public class CardManager : MonoBehaviour
     // 合并为一个RefillHand方法
     public void RefillHand()
     {
+        AddCard(cardsPerTurn);
+    }
+
+    // 补充手牌数量
+    public void AddCard(int count)
+    {
         int canDraw = Mathf.Min(
-         cardsPerTurn,
-         maxHandSize - currentHand.Count,
-         currentDeck.Count
-     );
+          count,
+          maxHandSize - currentHand.Count,
+          currentDeck.Count
+      );
 
         for (int i = 0; i < canDraw; i++) DrawCard();
     }

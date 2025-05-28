@@ -58,6 +58,12 @@ public class PlayerController : MonoBehaviour
         movementRoutine = StartCoroutine(MovementRoutine(hexCoords));
     }
 
+    //直接设置玩家的位置
+    public void SetPlayerPos(Vector3 position)
+    {
+        transform.position = position;
+    }
+
     private void OnTriggerEnter2D(Collider2D other) //胜利条件
     {
         if (other.CompareTag("ExitPoint"))
@@ -88,6 +94,26 @@ public class PlayerController : MonoBehaviour
         transform.position = targetPos; // 强制位置对齐
         Debug.Log("移动完成");
         isMoving = false;
+
+        Vector3Int cellPos = HexGridSystem.Instance.WorldToCell(targetPos);
+
+        if (HexGridSystem.Instance.IsExitHexTile(cellPos))
+        {
+            GameManager.Instance.GameOver(true);
+        }
+        else if (HexGridSystem.Instance.IsCardHexTile(cellPos))
+        {
+            //补卡点
+            CardManager.Instance.AddCard(3);
+            //补卡后位置消失
+            HexGridSystem.Instance.SetNormalTile(cellPos);
+        }else if (HexGridSystem.Instance.IsTeleportHexTile(cellPos))
+        {
+            //碰到传送门
+            TeleportSystem.Instance.Trigger(cellPos);
+        }
+
+        
 
         CardUIManager.Instance?.EndMoveTargetSelection();
         Debug.Log("移动完成并清除高亮");

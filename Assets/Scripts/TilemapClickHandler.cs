@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 public class TilemapClickHandler : MonoBehaviour, IPointerClickHandler
 {
     public static event System.Action<Vector3Int> OnHexClicked;
+    public static event System.Action<Vector3Int> OnBlockClicked;
 
     private Tilemap tilemap;
     private Camera mainCamera;
@@ -45,8 +46,13 @@ public class TilemapClickHandler : MonoBehaviour, IPointerClickHandler
             var temp_Tilemap = tilemap.GetTile(cellPos);
 
             //Debug.LogError(tilemap.GetColor(cellPos));
-            Debug.Log(
-                $"点击位置：屏幕 {Input.mousePosition} -> 世界 {worldPos} -> 格子坐标 {cellPos}, 是否有Tile: {tilemap.HasTile(cellPos)}");
+
+            if (temp_Tilemap)
+            {
+                Debug.Log(
+          $"点击位置：屏幕 {Input.mousePosition} -> 世界 {worldPos} -> 格子坐标 {cellPos}, 是否有Tile: {tilemap.HasTile(cellPos)},类型 -> {tilemap.GetTile(cellPos).name}");
+            }
+      
 
             if (HexGridSystem.Instance == null || HexGridSystem.Instance.highlightTileList == null)
             {
@@ -64,6 +70,14 @@ public class TilemapClickHandler : MonoBehaviour, IPointerClickHandler
                         Debug.Log("触发 Hex 点击事件");
 
                         OnHexClicked?.Invoke(cellPos);
+                    }
+                }
+
+                for (int i = 0; i < BlockPillarSystem.Instance.blockPosList.Count; i++)
+                {
+                    if (cellPos == BlockPillarSystem.Instance.blockPosList[i])
+                    {
+                        OnBlockClicked?.Invoke(cellPos);
                     }
                 }
             }

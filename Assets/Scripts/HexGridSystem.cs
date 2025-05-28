@@ -10,6 +10,9 @@ public class HexGridSystem : MonoBehaviour
     // 新增必要字段声明
     [Header("Tilemap References")] public Tilemap tilemap; // 需要拖拽绑定到 Inspector
 
+    public TileBase normalHexTile;
+    public TileBase exitHexTile;
+
     private void Awake()
     {
         // 单例初始化
@@ -45,23 +48,23 @@ public class HexGridSystem : MonoBehaviour
             // 奇数行方向
             new Vector3Int[]
             {
-                new Vector3Int(1, 0, 0), // 右
-                new Vector3Int(1, 1, 0), // 右上
-                new Vector3Int(0, 1, 0), // 左上
-                new Vector3Int(-1, 0, 0), // 左
-                new Vector3Int(0, -1, 0), // 左下
-                new Vector3Int(1, -1, 0) // 右下
+                new Vector3Int(1, 0, 0),   // 上
+                new Vector3Int(1, -1, 0),  // 左上
+                new Vector3Int(1, 1, 0),  // 右上
+                new Vector3Int(-1, 0, 0),  // 下
+                new Vector3Int(0, -1, 0),  // 左下
+                new Vector3Int(0, 1, 0)    // 右下
             }
             :
             // 偶数行方向
             new Vector3Int[]
             {
-                new Vector3Int(1, 0, 0), // 右
-                new Vector3Int(0, 1, 0), // 右上
-                new Vector3Int(-1, 1, 0), // 左上
-                new Vector3Int(-1, 0, 0), // 左
-                new Vector3Int(-1, -1, 0), // 左下
-                new Vector3Int(0, -1, 0) // 右下
+                new Vector3Int(1, 0, 0),   // 上
+                new Vector3Int(0, -1, 0),  // 左上
+                new Vector3Int(0, 1, 0),  // 右上
+                new Vector3Int(-1, 0, 0),  // 下
+                new Vector3Int(-1, -1, 0),  // 左下
+                new Vector3Int(-1, 1, 0)    // 右下
             };
     }
 
@@ -154,15 +157,38 @@ public class HexGridSystem : MonoBehaviour
     {
         List<Vector3Int> tiles = new List<Vector3Int>();
         Vector3Int currentPos = startPos;
+        int directionIndex = ConvertDirectionToIndex(startPos, direction);
+
 
         for (int i = 0; i < maxDistance; i++)
         {
-            currentPos += direction;
-            if (!IsHexValid(currentPos)) break;
+            // 判断当前行的奇偶性，假设按 currentPos.y 来判断
+            bool isOddRow = (currentPos.y % 2 != 0);
+            Vector3Int[] neighborDirs = GetNeighborDirections(isOddRow);
+            Vector3Int correctDir = neighborDirs[directionIndex];
+            currentPos += correctDir;
+            if (!IsHexValid(currentPos))
+                break;
             tiles.Add(currentPos);
         }
 
         return tiles;
+    }
+
+    public int ConvertDirectionToIndex(Vector3Int startPos, Vector3Int direction)
+    {
+        // 根据起始行的奇偶判断
+        bool isOddRow = (startPos.y % 2 != 0);
+        Vector3Int[] neighborDirs = GetNeighborDirections(isOddRow);
+
+        // 遍历邻居方向数组，如果匹配则返回索引
+        for (int i = 0; i < neighborDirs.Length; i++)
+        {
+            if (neighborDirs[i] == direction)
+                return i;
+        }
+        // 如果没有匹配上，可以返回-1或者抛出异常
+        return -1;
     }
 
     // 在Scene视图中可视化邻居方向
@@ -184,6 +210,19 @@ public class HexGridSystem : MonoBehaviour
         }
     }
 
+    //设置成正常的方块
+    public void SetNormalTile(Vector3Int position)
+    {
+        tilemap.SetTile(position,normalHexTile);
+    }
+
+    //设置撤离点
+    public void SetExitTile(Vector3Int newPosition,Vector3Int position)
+    {
+        tilemap.SetTile(newPosition, exitHexTile);
+        tilemap.SetTile(position,normalHexTile);
+    }
+
     // 新增可行走性验证
     public bool IsHexWalkable(Vector3Int hexCoords)
     {
@@ -198,5 +237,33 @@ public class HexGridSystem : MonoBehaviour
         TileBase tile = tilemap.GetTile(position);
         // 检查 Tile 名称是否为 "DarkHexTile"
         return tile != null && tile.name == "DarkHexTile";
+    }
+
+    //判断是否为出口
+    public bool IsExitHexTile(Vector3Int position)
+    {
+        TileBase tile = tilemap.GetTile(position);
+        return tile != null && tile.name == "ExitHexTile";
+    }
+
+    //判断是否为补卡点
+    public bool IsCardHexTile(Vector3Int position)
+    {
+        TileBase tile = tilemap.GetTile(position);
+        return tile != null && tile.name == "CardReplenishHexTile";
+    }
+
+    //判断是否为正常格子（无任何功能性的格子）
+    public bool IsNormalHexTile(Vector3Int position)
+    {
+        TileBase tile = tilemap.GetTile(position);
+        return tile != null && tile.name == "NormalHexTile";
+    }
+
+    //判断是否为传送门
+    public bool IsTeleportHexTile(Vector3Int position)
+    {
+        TileBase tile = tilemap.GetTile(position);
+        return tile != null && tile.name == "TeleporHexTile";
     }
 }

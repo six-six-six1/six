@@ -13,6 +13,11 @@ public class CardUIManager : MonoBehaviour
     private CardData draggedCardData;
     private Canvas canvas;
     private bool isSelectingMoveTarget;
+    private bool isSelectShockTarget;//是否处于冲击波的选择
+    private bool isSelectTeleportTarget;//是否处于传送门选择中
+    private int useCradNum = 3; //当回合只能使用的手牌数
+    private int curUseCradNum = 0; //当前回合使用的手牌数
+
 
     private void Awake()
     {
@@ -20,6 +25,7 @@ public class CardUIManager : MonoBehaviour
         else Destroy(gameObject);
 
         canvas = GetComponentInParent<Canvas>();
+        TurnManager.Instance.onTurnStarted.AddListener(OnTurnStarted);
     }
 
     public void UpdateHandUI(List<CardData> hand)
@@ -44,6 +50,12 @@ public class CardUIManager : MonoBehaviour
             Debug.Log($"创建卡牌:{card?.type}");
             CreateCardUI(card);
         }
+    }
+
+    //回合开始
+    void OnTurnStarted()
+    {
+        curUseCradNum = 0;
     }
 
     private void CreateCardUI(CardData card)
@@ -144,8 +156,23 @@ public class CardUIManager : MonoBehaviour
                 display.SetDraggingStatus(false); // 结束拖拽时恢复状态
             }
         }
+
         Destroy(draggedCard);
-      
+
+        bool isUseCard = IsUseCard();
+        if (!isUseCard) return;
+
+        if (useCradNum > curUseCradNum)
+        {
+            curUseCradNum++;
+        }
+        else
+        {
+            Debug.Log($"使用手牌数已达到{useCradNum}");
+            return;
+        }
+
+
         if (used && draggedCardData != null)
         {
             // 立即消耗卡牌
@@ -156,6 +183,8 @@ public class CardUIManager : MonoBehaviour
                 Debug.LogError("卡牌使用失败！");
                 return;
             }
+            Debug.Log("使用手牌的类型："+ draggedCardData.type);
+
 
             // 根据卡牌类型进入目标选择模式
             switch (draggedCardData.type)
@@ -166,6 +195,16 @@ public class CardUIManager : MonoBehaviour
                 case CardData.CardType.Shock:
                     StartShockDirectionSelection();
                     break;
+                case CardData.CardType.Replenish://补充手牌3张
+                    CardManager.Instance.AddCard(3);
+                    break;
+                case CardData.CardType.EnergyStone://能量石
+                    BlockPillarSystem.Instance.UseEnergyStone();
+                    break;
+                case CardData.CardType.Teleport://传送卡
+                    StartTeleportSelection();
+                    break;
+                    
                 default:
                     // 非目标选择类卡牌直接清除数据
                     draggedCardData = null;
@@ -177,6 +216,55 @@ public class CardUIManager : MonoBehaviour
             // 未使用卡牌时清除数据
             draggedCardData = null;
         }
+    }
+
+    //判断是否可以使用卡牌
+    bool IsUseCard()
+    {
+        if (draggedCardData.type == CardData.CardType.EnergyStone && BlockPillarSystem.Instance.isUseEnergyStone)
+        {
+            Debug.Log("能量石次数没用完，不能使用新的能量石");
+            return false;
+        }
+        if (isSelectingMoveTarget)
+        {
+            Debug.Log("正在移动选择中，不可使用卡牌");
+            return false;
+        }
+        if (isSelectShockTarget)
+        {
+            Debug.Log("正在冲击波选择中，不可使用卡牌");
+            return false;
+        }
+        if (isSelectTeleportTarget)
+        {
+            Debug.Log("正在选择传送门中，不可使用卡牌");
+            return false;
+        }
+
+        if (draggedCardData.type == CardData.CardType.Teleport)
+        {
+            //查看玩家附近是否有生成传送门的位置
+            Vector3Int playerPos = HexGridSystem.Instance.WorldToCell(PlayerController.Instance.transform.position);
+            Vector3Int[] directions = HexGridSystem.Instance.GetNeighborDirectionsForPosition(playerPos);
+            bool isCreate = false;
+            foreach (var dir in directions)
+            {
+                Vector3Int neighborPos = playerPos + dir;
+                if (HexGridSystem.Instance.IsNormalHexTile(neighborPos))
+                {
+                    isCreate = true;
+                    break;
+                }
+            }
+            if (!isCreate)
+            {
+                Debug.Log("玩家附近没有可生成传送门的地方");
+            }
+            return isCreate;
+        }
+
+        return true;
     }
 
     private void StartMoveTargetSelection()
@@ -231,7 +319,7 @@ public class CardUIManager : MonoBehaviour
         // 移动玩家
         PlayerController.Instance.MoveToHex(hexPosition);
         // 实际消耗卡牌
-        CardManager.Instance.PlayCard(draggedCardData);
+        //CardManager.Instance.PlayCard(draggedCardData);
         // 结束选择
         EndMoveTargetSelection();
 
@@ -269,6 +357,7 @@ public class CardUIManager : MonoBehaviour
 
     private void StartShockDirectionSelection()
     {
+        isSelectShockTarget = true;
         HexGridSystem.Instance.ClearAllHighlights();
         Vector3Int playerPos = HexGridSystem.Instance.WorldToCell(PlayerController.Instance.transform.position);
 
@@ -309,23 +398,26 @@ public class CardUIManager : MonoBehaviour
 
         Vector3Int playerPos = HexGridSystem.Instance.WorldToCell(PlayerController.Instance.transform.position);
         Vector3Int direction = selectedPos - playerPos;
+        Debug.Log("玩家位置："+ playerPos);
+        Debug.Log("选择的方向：" + direction);
 
         // 获取该方向上最多3格
         List<Vector3Int> tilesToClear = HexGridSystem.Instance.GetTilesInDirection(
             playerPos, direction, draggedCardData.maxClearDistance
         );
 
+        EndShockSelection();
+
         // 清除DarkHexTile
         foreach (var pos in tilesToClear)
         {
+            Debug.Log("方向所获取的位置："+pos);
             if (HexGridSystem.Instance.IsDarkHexTile(pos))
             {
                 Debug.Log($"尝试清除DarkHexTile：{pos}");
                 DarkTileSystem.Instance.ClearDarkTile(pos);
             }
         }
-
-        EndShockSelection();
     }
 
     private void EndShockSelection()
@@ -336,6 +428,19 @@ public class CardUIManager : MonoBehaviour
         // 操作完成后清除卡牌数据
         draggedCardData = null;
         Debug.Log("Shock方向选择结束，卡牌数据已清除");
+        isSelectShockTarget = false;
     }
 
+
+    //开始传送选择
+    private void StartTeleportSelection()
+    {
+        isSelectTeleportTarget = true;
+        HexGridSystem.Instance.ClearAllHighlights();
+        Vector3Int playerPos = HexGridSystem.Instance.WorldToCell(PlayerController.Instance.transform.position);
+        TeleportSystem.Instance.CreateTeleport(playerPos,delegate() 
+        {
+            isSelectTeleportTarget = false;
+        });
+    }
 }

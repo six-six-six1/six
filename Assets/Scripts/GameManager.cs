@@ -29,6 +29,8 @@ public class GameManager : MonoBehaviour
         // 新增：绑定回合结束事件
         turnManager.onTurnEnded.AddListener(OnTurnEnded);
         turnManager.StartPlayerTurn();
+
+        BlockPillarSystem.Instance.Init();
     }
 
     private void OnTurnEnded()
