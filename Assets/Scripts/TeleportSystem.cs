@@ -122,4 +122,15 @@ public class TeleportSystem : MonoBehaviour
         HexGridSystem.Instance.SetNormalTile(teleportData.targetTelportPos);
         allTeleportDataList.Remove(teleportData);
     }
+
+    // Çå¿Õ´«ËÍÃÅ
+    public void ClearTeleport()
+    {
+        TilemapClickHandler.OnHexClicked -= OnSelectTelportClick;
+        var count = allTeleportDataList.Count;
+        for (int i = 0; i < count; i++)
+        {
+            RemoveTeleport(allTeleportDataList[0]);
+        }
+    }
 }

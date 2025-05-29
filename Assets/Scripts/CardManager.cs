@@ -15,41 +15,20 @@ public class CardManager : MonoBehaviour
     // 添加公共访问器
     public List<CardData> CurrentHand => currentHand;
 
-    [Header("关卡设置")]
-    [SerializeField] private int currentLevel = 1;  // 当前关卡
-    public int CurrentLevel => currentLevel;        // 当前关卡属性
-
 
     private void Awake()
     {
-        // 单例模式初始化
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); // 跨场景不销毁
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-       
+        if (Instance == null) Instance = this;
+        // else Destroy(gameObject);
+        ValidateProbabilities();
     }
 
     private void Start()
     {
-        ValidateProbabilities(); // 验证概率配置
+
         DrawInitialHand();
     }
-    /// <summary>
-    /// 设置当前关卡
-    /// </summary>
-    /// <param name="level">目标关卡</param>
-    public void SetLevel(int level)
-    {
-        currentLevel = Mathf.Clamp(level, 1, 5); // 限制关卡范围1-5
-        Debug.Log($"切换到关卡{currentLevel}");
-        ValidateProbabilities(); // 重新验证概率
-    }
+
     /// <summary>
     /// 验证概率配置
     /// </summary>
@@ -61,16 +40,20 @@ public class CardManager : MonoBehaviour
             return;
         }
 
-        // 计算当前关卡的总概率
         float totalProb = 0f;
         foreach (var card in allCardTypes)
         {
-            totalProb += card.GetProbabilityForLevel(currentLevel);
+            totalProb += card.drawProbability;
         }
-        // 检查概率总和是否为100%
+
+        // 自动归一化处理
         if (Mathf.Abs(totalProb - 100f) > 0.1f)
         {
-            Debug.LogWarning($"关卡{currentLevel}概率总和为{totalProb}%（应为100%）");
+            Debug.LogWarning($"概率总和非100%（当前{totalProb}%），已自动调整");
+            foreach (var card in allCardTypes)
+            {
+                card.drawProbability = (card.drawProbability / totalProb) * 100f;
+            }
         }
     }
 
@@ -80,114 +63,87 @@ public class CardManager : MonoBehaviour
         AddCard(cardsPerTurn);
     }
 
-    /// <summary>
-    /// 添加指定数量的卡牌到手牌
-    /// </summary>
-    /// <param name="count">要抽取的数量</param>
+    // 补充手牌数量
     public void AddCard(int count)
     {
-        // 计算实际可抽取数量（不超过手牌上限）
         int canDraw = Mathf.Min(count, maxHandSize - currentHand.Count);
         for (int i = 0; i < canDraw; i++)
         {
-            DrawCard(); // 抽取单张卡牌
+            DrawProbabilityBasedCard();
         }
+    }
+    /// <summary>
+    /// 核心抽卡方法 - 按概率直接抽取
+    /// </summary>
+    private void DrawProbabilityBasedCard()
+    {
+        // 1. 计算概率分布
+        float[] probabilities = new float[5];
+        for (int i = 0; i < 5; i++)
+        {
+            probabilities[i] = allCardTypes[i].drawProbability;
+        }
+
+        // 2. 按概率随机选择
+        int cardIndex = GetRandomCardIndex(probabilities);
+        CardData drawnCard = allCardTypes[cardIndex];
+
+        // 3. 加入手牌
+        currentHand.Add(drawnCard);
+        Debug.Log($"抽到: {drawnCard.type} (概率: {drawnCard.drawProbability}%)");
+
+        // 4. 更新UI
+        CardUIManager.Instance?.UpdateHandUI(currentHand);
     }
 
     /// <summary>
-    /// 核心抽卡逻辑
+    /// 根据概率分布随机选择卡牌索引
     /// </summary>
-    private void DrawCard()
+    private int GetRandomCardIndex(float[] probabilities)
     {
-        // 检查手牌是否已满
-        if (currentHand.Count >= maxHandSize)
+        float total = 0f;
+        foreach (float prob in probabilities)
         {
-            Debug.LogWarning("手牌已满！");
-            return;
+            total += prob;
         }
 
-        // 1. 计算当前关卡的概率分布
-        float[] probabilities = new float[allCardTypes.Count];
-        float totalProb = 0f;
+        float randomPoint = Random.Range(0f, total);
+        float cumulative = 0f;
 
-        // 获取每种卡牌在当前关卡的概率
-        for (int i = 0; i < allCardTypes.Count; i++)
-        {
-            probabilities[i] = allCardTypes[i].GetProbabilityForLevel(currentLevel);
-            totalProb += probabilities[i];
-        }
-
-        // 2. 概率归一化（确保总和为100%）
-        if (Mathf.Abs(totalProb - 100f) > 0.1f)
-        {
-            for (int i = 0; i < probabilities.Length; i++)
-            {
-                probabilities[i] = (probabilities[i] / totalProb) * 100f;
-            }
-        }
-
-        // 3. 按概率随机选择卡牌
-        float randomPoint = Random.Range(0f, 100f); // 随机点
-        float cumulative = 0f;                     // 累计概率
-        CardData drawnCard = allCardTypes[0];      // 默认卡牌
-
-        // 根据概率分布选择卡牌
         for (int i = 0; i < probabilities.Length; i++)
         {
             cumulative += probabilities[i];
             if (randomPoint <= cumulative)
             {
-                drawnCard = allCardTypes[i];
-                break;
+                return i;
             }
         }
 
-        // 4. 添加卡牌到手牌
-        currentHand.Add(drawnCard);
-        Debug.Log($"抽取卡牌: {drawnCard.type} (关卡{currentLevel}概率: {drawnCard.GetProbabilityForLevel(currentLevel)}%)");
-
-        // 5. 更新UI显示
-        CardUIManager.Instance?.UpdateHandUI(currentHand);
+        return 0; // 默认返回第一个
     }
-
-
-   
-
-   
 
     
 
     void DrawInitialHand()
     {
-        currentHand.Clear(); // 清空当前手牌
         for (int i = 0; i < initialHandSize; i++)
         {
-            DrawCard(); // 抽取初始手牌
+            DrawProbabilityBasedCard();
         }
     }
 
-
-    /// <summary>
-    /// 使用卡牌
-    /// </summary>
-    /// <param name="card">要使用的卡牌</param>
-    /// <param name="cardUIInstance">卡牌UI实例(可选)</param>
-    /// <returns>是否使用成功</returns>
+    
     public bool PlayCard(CardData card, GameObject cardUIInstance = null)
     {
-        // 从手牌移除卡牌
         if (!currentHand.Remove(card)) return false;
 
-        // 销毁卡牌UI对象
         if (cardUIInstance != null)
         {
-            Destroy(cardUIInstance);
+            StartCoroutine(FadeOutAndDestroy(cardUIInstance));
         }
 
-        // 更新UI显示
         CardUIManager.Instance?.UpdateHandUI(currentHand);
 
-        // 如果手牌为空，结束回合
         if (currentHand.Count == 0)
         {
             TurnManager.Instance?.EndPlayerTurn();
@@ -195,7 +151,6 @@ public class CardManager : MonoBehaviour
 
         return true;
     }
-
 
     private IEnumerator FadeOutAndDestroy(GameObject card)
     {

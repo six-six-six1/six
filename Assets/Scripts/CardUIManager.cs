@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -443,5 +444,53 @@ public class CardUIManager : MonoBehaviour
         {
             isSelectTeleportTarget = false;
         });
+    }
+
+    private void Update()
+    {
+        if (draggedCard != null && Input.GetMouseButtonUp(1))
+        {
+            GameObject.Destroy(draggedCard);
+            draggedCard = null;
+        }
+
+        if (draggedCardData != null)
+        {
+            if (Input.GetMouseButtonUp(1))
+            {
+                 HexGridSystem.Instance.ClearAllHighlights();
+                // 本身手上的卡牌
+                var curCardsInHand = CardManager.Instance.CurrentHand;
+
+                // 移动
+                if (draggedCardData.type == CardData.CardType.Move)
+                {
+                    isSelectingMoveTarget = false;
+                    curCardsInHand.Add(CardManager.Instance.allCardTypes.Single(data => data.type == CardData.CardType.Move));
+                }
+
+                // 冲击波
+                if (draggedCardData.type == CardData.CardType.Shock)
+                {
+                    isSelectShockTarget = false;
+                    TilemapClickHandler.OnHexClicked -= HandleShockDirectionSelected;
+                    curCardsInHand.Add(CardManager.Instance.allCardTypes.Single(data => data.type == CardData.CardType.Shock));
+                }
+
+                // 传送门
+                if (draggedCardData.type == CardData.CardType.Teleport)
+                {
+                    isSelectTeleportTarget = false;
+                    curCardsInHand.Add(CardManager.Instance.allCardTypes.Single(data => data.type == CardData.CardType.Teleport));
+                    TeleportSystem.Instance.ClearTeleport();
+                }
+
+                // 卡牌收回到手上
+                UpdateHandUI(curCardsInHand);
+                // 取消数据，撤回移动数量
+                curUseCradNum--;
+                draggedCardData = null;
+            }
+        }
     }
 }
