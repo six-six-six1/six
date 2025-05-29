@@ -12,6 +12,11 @@ public class DarkTileSystem : MonoBehaviour
     public TileBase normalTile;
     public static DarkTileSystem Instance;
 
+    [Header("Audio Settings")]
+    public AudioClip darkTileExpandSound; // 黑雾扩展音效
+    public AudioClip darkTileClearSound;  // 清除黑雾音效
+    private AudioSource audioSource;
+    [Range(0, 1)] public float clearSoundVolume = 0.8f;
     private Dictionary<Vector3Int, TileBase> originalTiles = new Dictionary<Vector3Int, TileBase>();
 
     private void Awake()
@@ -23,6 +28,10 @@ public class DarkTileSystem : MonoBehaviour
 
         if (Instance == null) Instance = this;
         else Destroy(this);
+
+        // 添加AudioSource组件
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
     }
 
     public void ExpandDarkTiles(int expandCount,bool isUnlimited = false)
@@ -102,7 +111,14 @@ public class DarkTileSystem : MonoBehaviour
         {
             baseMap.SetTile(tilePos, darkTile);
         }
+        if (newDarkTiles.Count > 0 && darkTileExpandSound != null)
+        {
+            audioSource.PlayOneShot(darkTileExpandSound);
 
+            // 可选：根据生成的黑雾数量调整音量
+            float volume = Mathf.Clamp(newDarkTiles.Count / 10f, 0.1f, 1f);
+            audioSource.PlayOneShot(darkTileExpandSound, volume);
+        }
         CheckPlayerCaught();
     }
 
@@ -143,6 +159,12 @@ public class DarkTileSystem : MonoBehaviour
         // 检查目标位置是否是 DarkHexTile
         if (baseMap.GetTile(position) == darkTile)
         {
+            // 播放清除音效
+            if (darkTileClearSound != null)
+            {
+                audioSource.PlayOneShot(darkTileClearSound, clearSoundVolume);
+
+            }
             // 恢复原始 Tile（如果已存储）
             if (originalTiles.TryGetValue(position, out TileBase original))
             {

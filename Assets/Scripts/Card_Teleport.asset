@@ -13,8 +13,19 @@ MonoBehaviour:
   m_Name: Card_Teleport
   m_EditorClassIdentifier: 
   type: 4
-  icon: {fileID: 21300000, guid: ea96cb13b762e59469063669806c3e91, type: 3}
+  icon: {fileID: 21300000, guid: 14c8b5f4065610e45a18556bd6270a16, type: 3}
   description: 
-  drawProbability: 15
+  baseProbability: 20
+  levelProbabilities:
+  - level: 1
+    probabilityAdjustment: 0
+  - level: 2
+    probabilityAdjustment: 0
+  - level: 3
+    probabilityAdjustment: 0
+  - level: 4
+    probabilityAdjustment: 0
+  - level: 5
+    probabilityAdjustment: 0
   moveDistance: 1
   maxClearDistance: 3

@@ -6,55 +6,64 @@ public class CardManager : MonoBehaviour
 {
     [Header("Settings")]
     public List<CardData> allCardTypes;
-    public int initialHandSize = 7; // 改为初始7张
+    public int initialHandSize = 7;
     public int maxHandSize = 7;
-    public int cardsPerTurn = 2; // 每回合补充2张
+    public int cardsPerTurn = 2;
 
+    [Header("Audio Settings")]
+    public AudioClip drawCardSound;      // 抽卡音效
+    public AudioClip playCardSound;      // 使用卡牌音效
+    [Range(0, 1)] public float drawVolume = 0.8f;
+    [Range(0, 1)] public float playVolume = 0.8f;
+
+    private AudioSource audioSource;
     public List<CardData> currentHand = new List<CardData>();
     public static CardManager Instance;
-    // 添加公共访问器
     public List<CardData> CurrentHand => currentHand;
-   
-    [Header("关卡设置")]
-    [SerializeField] private int currentLevel = 1;  // 当前关卡
-    public int CurrentLevel => currentLevel;        // 当前关卡属性
 
+    [Header("关卡设置")]
+    [SerializeField] private int currentLevel = 1;
+    public int CurrentLevel => currentLevel;
 
     private void Awake()
     {
-        // 单例模式初始化
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 跨场景不销毁
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
     }
 
     private void Start()
     {
-        ValidateProbabilities(); // 验证概率配置
+        ValidateProbabilities();
         DrawInitialHand();
     }
 
-    /// <summary>
-    /// 设置当前关卡
-    /// </summary>
-    /// <param name="level">目标关卡</param>
-    public void SetLevel(int level)
+    // 播放音效的辅助方法
+    private void PlaySound(AudioClip clip, float volume = 1f, float pitch = 1f)
     {
-        currentLevel = Mathf.Clamp(level, 1, 5); // 限制关卡范围1-5
-        Debug.Log($"切换到关卡{currentLevel}");
-        ValidateProbabilities(); // 重新验证概率
+        if (clip != null && audioSource != null)
+        {
+            audioSource.pitch = pitch;
+            audioSource.PlayOneShot(clip, volume);
+        }
     }
 
+    public void SetLevel(int level)
+    {
+        currentLevel = Mathf.Clamp(level, 1, 5);
+        Debug.Log($"切换到关卡{currentLevel}");
+        ValidateProbabilities();
+    }
 
-    /// <summary>
-    /// 验证概率配置
-    /// </summary>
     private void ValidateProbabilities()
     {
         if (allCardTypes.Count != 5)
@@ -69,54 +78,63 @@ public class CardManager : MonoBehaviour
             totalProb += card.GetProbabilityForLevel(currentLevel);
         }
 
-        // 检查概率总和是否为100%
         if (Mathf.Abs(totalProb - 100f) > 0.1f)
         {
             Debug.LogWarning($"关卡{currentLevel}概率总和为{totalProb}%（应为100%）");
         }
     }
 
-    // 合并为一个RefillHand方法
     public void RefillHand()
     {
         AddCard(cardsPerTurn);
     }
 
-    // 补充手牌数量
     public void AddCard(int count)
     {
-        // 计算实际可抽取数量（不超过手牌上限）
         int canDraw = Mathf.Min(count, maxHandSize - currentHand.Count);
         for (int i = 0; i < canDraw; i++)
         {
-            DrawCard(); // 抽取单张卡牌
+            DrawCard();
         }
     }
-   
+
     /// <summary>
-    /// 核心抽卡逻辑
+    /// 抽取初始手牌
     /// </summary>
+    public void DrawInitialHand()
+    {
+        currentHand.Clear();
+        for (int i = 0; i < initialHandSize; i++)
+        {
+            DrawCard();
+            // 为每张卡添加轻微延迟的音效（0.05秒间隔）
+           // if (i > 0) StartCoroutine(DelayedDrawSound(i * 0.05f));
+        }
+    }
+
+    private IEnumerator DelayedDrawSound(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        PlaySound(drawCardSound, drawVolume, Random.Range(0.9f, 1.1f));
+    }
+
     private void DrawCard()
     {
-        // 检查手牌是否已满
         if (currentHand.Count >= maxHandSize)
         {
             Debug.LogWarning("手牌已满！");
             return;
         }
 
-        // 1. 计算当前关卡的概率分布
         float[] probabilities = new float[allCardTypes.Count];
         float totalProb = 0f;
 
-        // 获取每种卡牌在当前关卡的概率
         for (int i = 0; i < allCardTypes.Count; i++)
         {
             probabilities[i] = allCardTypes[i].GetProbabilityForLevel(currentLevel);
             totalProb += probabilities[i];
         }
 
-        // 2. 概率归一化（确保总和为100%）
         if (Mathf.Abs(totalProb - 100f) > 0.1f)
         {
             for (int i = 0; i < probabilities.Length; i++)
@@ -125,12 +143,10 @@ public class CardManager : MonoBehaviour
             }
         }
 
-        // 3. 按概率随机选择卡牌
-        float randomPoint = Random.Range(0f, 100f); // 随机点
-        float cumulative = 0f;                     // 累计概率
-        CardData drawnCard = allCardTypes[0];      // 默认卡牌
+        float randomPoint = Random.Range(0f, 100f);
+        float cumulative = 0f;
+        CardData drawnCard = allCardTypes[0];
 
-        // 根据概率分布选择卡牌
         for (int i = 0; i < probabilities.Length; i++)
         {
             cumulative += probabilities[i];
@@ -141,71 +157,29 @@ public class CardManager : MonoBehaviour
             }
         }
 
-        // 4. 添加卡牌到手牌
         currentHand.Add(drawnCard);
         Debug.Log($"抽取卡牌: {drawnCard.type} (关卡{currentLevel}概率: {drawnCard.GetProbabilityForLevel(currentLevel)}%)");
 
-        // 5. 更新UI显示
+        // 立即播放抽卡音效（主音效）
+        PlaySound(drawCardSound, drawVolume, Random.Range(0.9f, 1.1f));
+
         CardUIManager.Instance?.UpdateHandUI(currentHand);
     }
 
-
-
-    /// <summary>
-    /// 根据概率分布随机选择卡牌索引
-    /// </summary>
-    private int GetRandomCardIndex(float[] probabilities)
-    {
-        float total = 0f;
-        foreach (float prob in probabilities)
-        {
-            total += prob;
-        }
-
-        float randomPoint = Random.Range(0f, total);
-        float cumulative = 0f;
-
-        for (int i = 0; i < probabilities.Length; i++)
-        {
-            cumulative += probabilities[i];
-            if (randomPoint <= cumulative)
-            {
-                return i;
-            }
-        }
-
-        return 0; // 默认返回第一个
-    }
-
-
-    /// <summary>
-    /// 抽取初始手牌
-    /// </summary>
-    void DrawInitialHand()
-    {
-        currentHand.Clear(); // 清空当前手牌
-        for (int i = 0; i < initialHandSize; i++)
-        {
-            DrawCard(); // 抽取初始手牌
-        }
-    }
-
-    
     public bool PlayCard(CardData card, GameObject cardUIInstance = null)
     {
-        // 从手牌移除卡牌
         if (!currentHand.Remove(card)) return false;
 
-        // 销毁卡牌UI对象
+        // 播放使用卡牌音效
+        PlaySound(playCardSound, playVolume);
+
         if (cardUIInstance != null)
         {
             Destroy(cardUIInstance);
         }
 
-        // 更新UI显示
         CardUIManager.Instance?.UpdateHandUI(currentHand);
 
-        // 如果手牌为空，结束回合
         if (currentHand.Count == 0)
         {
             TurnManager.Instance?.EndPlayerTurn();
@@ -213,17 +187,14 @@ public class CardManager : MonoBehaviour
 
         return true;
     }
+
     public void ApplyLevelSettings(LevelData levelData)
     {
-        // 更新手牌设置
         initialHandSize = levelData.initialHandSize;
         maxHandSize = levelData.maxHandSize;
         cardsPerTurn = levelData.cardsPerTurn;
-
-        // 设置当前关卡ID
         currentLevel = levelData.levelID;
 
-        // 应用全局概率调整（可选）
         foreach (var card in allCardTypes)
         {
             card.ApplyLevelMultiplier(levelData.probabilityMultiplier);
