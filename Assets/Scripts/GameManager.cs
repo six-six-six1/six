@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     [Header("References")]
     public Transform playerPrefab;
     public Transform exitPoint;
+    public Transform PlayerSpawn;
+   
 
     public TurnManager turnManager;
     public CardManager cardManager;
@@ -47,7 +49,9 @@ public class GameManager : MonoBehaviour
     private Vector3 GetStartPosition()
     {
         // 简单实现 - 实际应该根据地图设计确定
-        return new Vector3(0, 0, 0);
+       Vector3 playeralive = new Vector3(PlayerSpawn.position.x, PlayerSpawn.transform.position.y, PlayerSpawn.transform.position.z);
+
+    return playeralive;
     }
     public void GameOver(bool win)
     {

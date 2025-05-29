@@ -10,33 +10,51 @@ public class CardManager : MonoBehaviour
     public int maxHandSize = 7;
     public int cardsPerTurn = 2; // 每回合补充2张
 
-    public List<CardData> currentDeck = new List<CardData>();
     public List<CardData> currentHand = new List<CardData>();
     public static CardManager Instance;
     // 添加公共访问器
     public List<CardData> CurrentHand => currentHand;
-    public int CardsRemaining => currentDeck.Count + currentHand.Count;
+
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
-       // else Destroy(gameObject);
+        // else Destroy(gameObject);
+        ValidateProbabilities();
     }
 
     private void Start()
     {
-        InitializeDeck();
+
         DrawInitialHand();
     }
 
-    private void InitializeDeck()
+    /// <summary>
+    /// 验证概率配置
+    /// </summary>
+    private void ValidateProbabilities()
     {
-        currentDeck.Clear();
+        if (allCardTypes.Count != 5)
+        {
+            Debug.LogError("必须配置5种卡牌！");
+            return;
+        }
+
+        float totalProb = 0f;
         foreach (var card in allCardTypes)
         {
-            for (int i = 0; i < 5; i++) currentDeck.Add(card);
+            totalProb += card.drawProbability;
         }
-        ShuffleDeck();
+
+        // 自动归一化处理
+        if (Mathf.Abs(totalProb - 100f) > 0.1f)
+        {
+            Debug.LogWarning($"概率总和非100%（当前{totalProb}%），已自动调整");
+            foreach (var card in allCardTypes)
+            {
+                card.drawProbability = (card.drawProbability / totalProb) * 100f;
+            }
+        }
     }
 
     // 合并为一个RefillHand方法
@@ -48,92 +66,87 @@ public class CardManager : MonoBehaviour
     // 补充手牌数量
     public void AddCard(int count)
     {
-        int canDraw = Mathf.Min(
-          count,
-          maxHandSize - currentHand.Count,
-          currentDeck.Count
-      );
-
-        for (int i = 0; i < canDraw; i++) DrawCard();
-    }
-
-    private void ShuffleDeck()
-    {
-        // Fisher-Yates洗牌算法
-        for (int i = currentDeck.Count - 1; i > 0; i--)
+        int canDraw = Mathf.Min(count, maxHandSize - currentHand.Count);
+        for (int i = 0; i < canDraw; i++)
         {
-            int j = Random.Range(0, i + 1);
-            CardData temp = currentDeck[i];
-            currentDeck[i] = currentDeck[j];
-            currentDeck[j] = temp;
+            DrawProbabilityBasedCard();
         }
     }
+    /// <summary>
+    /// 核心抽卡方法 - 按概率直接抽取
+    /// </summary>
+    private void DrawProbabilityBasedCard()
+    {
+        // 1. 计算概率分布
+        float[] probabilities = new float[5];
+        for (int i = 0; i < 5; i++)
+        {
+            probabilities[i] = allCardTypes[i].drawProbability;
+        }
+
+        // 2. 按概率随机选择
+        int cardIndex = GetRandomCardIndex(probabilities);
+        CardData drawnCard = allCardTypes[cardIndex];
+
+        // 3. 加入手牌
+        currentHand.Add(drawnCard);
+        Debug.Log($"抽到: {drawnCard.type} (概率: {drawnCard.drawProbability}%)");
+
+        // 4. 更新UI
+        CardUIManager.Instance?.UpdateHandUI(currentHand);
+    }
+
+    /// <summary>
+    /// 根据概率分布随机选择卡牌索引
+    /// </summary>
+    private int GetRandomCardIndex(float[] probabilities)
+    {
+        float total = 0f;
+        foreach (float prob in probabilities)
+        {
+            total += prob;
+        }
+
+        float randomPoint = Random.Range(0f, total);
+        float cumulative = 0f;
+
+        for (int i = 0; i < probabilities.Length; i++)
+        {
+            cumulative += probabilities[i];
+            if (randomPoint <= cumulative)
+            {
+                return i;
+            }
+        }
+
+        return 0; // 默认返回第一个
+    }
+
+    
 
     void DrawInitialHand()
     {
-        Debug.Log($"正在抽初始手牌，牌库剩余:{currentDeck.Count}");
         for (int i = 0; i < initialHandSize; i++)
         {
-            if (currentDeck.Count == 0)
-            {
-                Debug.LogError("牌库为空！");
-                break;
-            }
-            DrawCard();
+            DrawProbabilityBasedCard();
         }
     }
 
-    private void DrawCard()
-    {
-        // 安全校验
-        if (currentDeck == null || currentDeck.Count == 0)
-        {
-            Debug.LogWarning("牌库为空");
-            return;
-        }
-
-        if (currentHand == null)
-        {
-            Debug.LogWarning("手牌列表未初始化，正在修复...");
-            currentHand = new List<CardData>();
-        }
-
-        // 抽卡逻辑
-        CardData drawnCard = currentDeck[0];
-        currentDeck.RemoveAt(0);
-        currentHand.Add(drawnCard);
-
-        // 更新UI（添加null检查）
-        if (CardUIManager.Instance != null)
-        {
-            CardUIManager.Instance.UpdateHandUI(currentHand);
-        }
-        else
-        {
-            Debug.LogError("CardUIManager 实例丢失！");
-        }
-
-        Debug.Log($"抽卡: {drawnCard.type} (剩余:{currentDeck.Count})");
-    }
-
+    
     public bool PlayCard(CardData card, GameObject cardUIInstance = null)
     {
         if (!currentHand.Remove(card)) return false;
 
-        // 销毁卡牌UI
         if (cardUIInstance != null)
         {
-            Destroy(cardUIInstance);
+            StartCoroutine(FadeOutAndDestroy(cardUIInstance));
         }
 
-        // 更新手牌UI
         CardUIManager.Instance?.UpdateHandUI(currentHand);
 
-        // 检查手牌是否为空
         if (currentHand.Count == 0)
         {
-            Debug.Log("手牌已用完，自动结束回合");
-            TurnManager.Instance.EndPlayerTurn();
+            TurnManager.Instance?.EndPlayerTurn();
         }
 
         return true;

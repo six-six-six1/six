@@ -15,5 +15,6 @@ MonoBehaviour:
   type: 2
   icon: {fileID: 5915729139475095840, guid: aa27695502792764d9d2878b32ecaa4c, type: 3}
   description: 
+  drawProbability: 15
   moveDistance: 1
-  shockDistance: 3
+  maxClearDistance: 3

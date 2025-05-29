@@ -11,6 +11,10 @@ public class CardData : ScriptableObject
     public Sprite icon;
     public string description;
 
+    [Header("抽卡概率"), Tooltip("设置此卡牌的抽取概率百分比")]
+    [Range(0.1f, 100)]
+    public float drawProbability = 20f;
+
     [Header("Move Card")]
     public int moveDistance = 1;
 
