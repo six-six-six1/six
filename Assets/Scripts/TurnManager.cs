@@ -28,7 +28,7 @@ public class TurnManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // ±£³Ö¿ç³¡¾°
+           
         }
         else
         {

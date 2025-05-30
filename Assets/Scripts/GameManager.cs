@@ -26,9 +26,6 @@ public class GameManager : MonoBehaviour
     public Button nextLevelButton;
     public Button retryButton;
 
-    [Header("Level Settings")]
-    public List<string> levelScenes = new List<string>(); // 按顺序存放各关卡场景名
-    private int currentLevelIndex = 0;
 
     public TurnManager turnManager;
     public CardManager cardManager;
@@ -40,7 +37,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         // 初始化按钮事件
-        nextLevelButton.onClick.AddListener(LoadNextLevel);
+        nextLevelButton.onClick.AddListener(OnNextLevelClicked);
         retryButton.onClick.AddListener(ReloadCurrentLevel);
 
         // 隐藏UI
@@ -49,13 +46,35 @@ public class GameManager : MonoBehaviour
 
 
         SpawnPlayer();
+
+        // 确保TurnManager存在并初始化
+        if (turnManager == null)
+        {
+            turnManager = FindObjectOfType<TurnManager>();
+        }
+
+        // 确保DarkTileSystem已初始化
+        if (DarkTileSystem.Instance == null)
+        {
+            var darkTileSystem = FindObjectOfType<DarkTileSystem>();
+            if (darkTileSystem != null) darkTileSystem.Init();
+        }
+
         // 新增：绑定回合结束事件
         turnManager.onTurnEnded.AddListener(OnTurnEnded);
         turnManager.StartPlayerTurn();
 
+
         BlockPillarSystem.Instance.Init();
     }
-
+    private void OnDestroy()
+    {
+        // 清除事件监听，防止内存泄漏
+        if (turnManager != null)
+        {
+            turnManager.onTurnEnded.RemoveListener(OnTurnEnded);
+        }
+    }
     private void OnTurnEnded()
     {
         // 设置每回合感染1-2个地块
@@ -90,9 +109,24 @@ public class GameManager : MonoBehaviour
     }
     private void ShowWinUI()
     {
+        if (winUI == null)
+        {
+            Debug.LogError("winUI未在Inspector中赋值!");
+            return;
+        }
+
         winUI.SetActive(true);
-        // 如果是最后一关，禁用"下一关"按钮
-        nextLevelButton.interactable = currentLevelIndex < levelScenes.Count - 1;
+
+        bool hasNextLevel = LevelManager.Instance != null && LevelManager.Instance.HasNextLevel();
+
+        if (nextLevelButton != null)
+        {
+            nextLevelButton.interactable = hasNextLevel;
+        }
+        else
+        {
+            Debug.LogError("nextLevelButton未在Inspector中赋值!");
+        }
     }
 
     private void ShowLoseUI()
@@ -100,25 +134,23 @@ public class GameManager : MonoBehaviour
         loseUI.SetActive(true);
     }
 
-    public void LoadNextLevel()
+    private void OnNextLevelClicked()
     {
-        Time.timeScale = 1; // 恢复时间
-        currentLevelIndex++;
-
-        if (currentLevelIndex < levelScenes.Count)
-        {
-            SceneManager.LoadScene(levelScenes[currentLevelIndex]);
-        }
-        else
-        {
-            // 所有关卡完成
-            SceneManager.LoadScene("MainMenu"); // 返回主菜单
-        }
+        Time.timeScale = 1; // 恢复游戏时间
+        LevelManager.Instance.UnlockAndLoadNextLevel();
     }
+
+
 
     public void ReloadCurrentLevel()
     {
         Time.timeScale = 1;
+        // 先取消所有事件监听
+        if (turnManager != null)
+        {
+            turnManager.onTurnEnded.RemoveAllListeners();
+        }
+        // 重载场景
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

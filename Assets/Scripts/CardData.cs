@@ -11,47 +11,22 @@ public class CardData : ScriptableObject
     public Sprite icon;
     public string description;
 
-    [Header("基础概率")]
-    [Tooltip("基础抽取概率(0-100)")]
+    [Header("各关卡概率配置")]
+    [Tooltip("每个关卡的独立概率(1-100)")]
     [Range(1, 100)]
-    public float baseProbability = 20f;  // 默认基础概率20%
-
-    [Header("关卡概率调整")]
-    [Tooltip("每个关卡的独立概率调整")]
-    public List<LevelProbability> levelProbabilities = new List<LevelProbability>();
-
-    // 关卡概率调整数据结构
-    [System.Serializable]
-    public class LevelProbability
-    {
-        public int level;                 // 关卡编号
-        [Tooltip("基础概率调整值(-50到+50)")]
-        [Range(-50, 50)]
-        public float probabilityAdjustment; // 概率调整值
-    }
+    public List<float> levelProbabilities = new List<float>() { 20f, 20f, 20f, 20f, 20f }; // 默认每个关卡20%
 
     /// <summary>
     /// 获取指定关卡的最终概率
     /// </summary>
-    /// <param name="level">目标关卡</param>
-    /// <returns>计算后的概率值</returns>
     public float GetProbabilityForLevel(int level)
     {
-        float probability = baseProbability;  // 从基础概率开始
-
-        // 应用该关卡的调整值
-        foreach (var lp in levelProbabilities)
-        {
-            if (lp.level == level)
-            {
-                probability += lp.probabilityAdjustment;
-                break;
-            }
-        }
-
-        // 确保概率在1%-100%范围内
-        return Mathf.Clamp(probability, 1f, 100f);
+        // 确保关卡编号在有效范围内
+        int index = Mathf.Clamp(level - 1, 0, levelProbabilities.Count - 1);
+        return Mathf.Clamp(levelProbabilities[index], 1f, 100f);
     }
+
+    
 
     [Header("Move Card")]
     public int moveDistance = 1;
@@ -59,40 +34,17 @@ public class CardData : ScriptableObject
     [Header("Shock Card")]
     public int maxClearDistance = 3;
 
-    // 在CardData.cs中添加：
-    public void ApplyLevelMultiplier(float multiplier)
-    {
-        // 示例：根据关卡调整基础概率
-        float adjustedProbability = baseProbability * (1 + multiplier / 100f);
-        adjustedProbability = Mathf.Clamp(adjustedProbability, 1f, 100f);
-        Debug.Log($"{type}卡牌概率调整为：{adjustedProbability}%");
-    }
 
     // 编辑器模式下自动验证
 #if UNITY_EDITOR
     private void OnValidate()
     {
-        // 确保包含所有关卡的调整配置（假设有5个关卡）
-        for (int i = 1; i <= 5; i++)
+        // 确保有5个关卡的配置
+        while (levelProbabilities.Count < 5)
         {
-            bool exists = false;
-            foreach (var lp in levelProbabilities)
-            {
-                if (lp.level == i)
-                {
-                    exists = true;
-                    break;
-                }
-            }
-
-            // 如果缺少某个关卡的配置，自动添加默认值
-            if (!exists)
-            {
-                levelProbabilities.Add(new LevelProbability { level = i });
-            }
+            levelProbabilities.Add(20f); // 默认值
         }
     }
 #endif
 
-    
 }

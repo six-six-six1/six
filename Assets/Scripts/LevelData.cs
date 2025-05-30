@@ -22,16 +22,18 @@ public class LevelData : ScriptableObject
     public int maxHandSize = 7;              // 本关卡手牌上限
     public int cardsPerTurn = 2;             // 本关卡每回合抽牌数
 
-    [Header("概率全局调整")]
-    [Range(-50, 50)]
-    public float probabilityMultiplier = 0;  // 全局概率调整系数（百分比）
+    [Header("关卡状态")]
+    public bool isUnlocked;                  // 是否已解锁
 
-    // 在LevelData中添加
-    public bool isUnlocked;
-
-    // 存储到PlayerPrefs
+    // 存储解锁状态到PlayerPrefs
     public void SaveUnlockState()
     {
         PlayerPrefs.SetInt($"Level_{levelID}_Unlocked", isUnlocked ? 1 : 0);
+    }
+
+    // 从PlayerPrefs加载解锁状态
+    public void LoadUnlockState()
+    {
+        isUnlocked = PlayerPrefs.GetInt($"Level_{levelID}_Unlocked", 0) == 1;
     }
 }

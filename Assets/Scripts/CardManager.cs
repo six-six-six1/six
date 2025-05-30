@@ -126,33 +126,24 @@ public class CardManager : MonoBehaviour
             return;
         }
 
-        float[] probabilities = new float[allCardTypes.Count];
         float totalProb = 0f;
 
-        for (int i = 0; i < allCardTypes.Count; i++)
+        foreach (var card in allCardTypes)
         {
-            probabilities[i] = allCardTypes[i].GetProbabilityForLevel(currentLevel);
-            totalProb += probabilities[i];
+            totalProb += card.GetProbabilityForLevel(currentLevel);
         }
 
-        if (Mathf.Abs(totalProb - 100f) > 0.1f)
-        {
-            for (int i = 0; i < probabilities.Length; i++)
-            {
-                probabilities[i] = (probabilities[i] / totalProb) * 100f;
-            }
-        }
-
-        float randomPoint = Random.Range(0f, 100f);
+        // 随机选择卡牌
+        float randomPoint = Random.Range(0f, totalProb);
         float cumulative = 0f;
         CardData drawnCard = allCardTypes[0];
 
-        for (int i = 0; i < probabilities.Length; i++)
+        foreach (var card in allCardTypes)
         {
-            cumulative += probabilities[i];
+            cumulative += card.GetProbabilityForLevel(currentLevel);
             if (randomPoint <= cumulative)
             {
-                drawnCard = allCardTypes[i];
+                drawnCard = card;
                 break;
             }
         }
@@ -194,13 +185,13 @@ public class CardManager : MonoBehaviour
         maxHandSize = levelData.maxHandSize;
         cardsPerTurn = levelData.cardsPerTurn;
         currentLevel = levelData.levelID;
+        Debug.Log($"已应用关卡设置: {levelData.levelName}");
+        Debug.Log($"当前关卡ID: {currentLevel}");
 
-        foreach (var card in allCardTypes)
-        {
-            card.ApplyLevelMultiplier(levelData.probabilityMultiplier);
-        }
+        // 重新验证概率并抽牌
+        ValidateProbabilities();
+        DrawInitialHand();
 
-        Debug.Log($"已应用关卡设置：{levelData.levelName}");
     }
 
     private IEnumerator FadeOutAndDestroy(GameObject card)

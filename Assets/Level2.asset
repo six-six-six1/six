@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c60c0cadf093da94fb37207769b6c689, type: 3}
   m_Name: Level2
   m_EditorClassIdentifier: 
-  levelID: 1
+  levelID: 2
   levelName: "\u9ED8\u8BA4\u5173\u5361"
   description: 
   thumbnail: {fileID: 0}
@@ -20,5 +20,4 @@ MonoBehaviour:
   initialHandSize: 5
   maxHandSize: 7
   cardsPerTurn: 2
-  probabilityMultiplier: 0
-  isUnlocked: 0
+  isUnlocked: 1

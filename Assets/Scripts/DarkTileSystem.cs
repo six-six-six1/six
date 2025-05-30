@@ -26,8 +26,17 @@ public class DarkTileSystem : MonoBehaviour
             tilemap = GetComponent<Tilemap>();
         }
 
-        if (Instance == null) Instance = this;
-        else Destroy(this);
+        // 单例模式初始化
+        if (Instance == null)
+        {
+            Instance = this;
+      
+        }
+        else
+        {
+            Destroy(this);
+            return;
+        }
 
         // 添加AudioSource组件
         audioSource = gameObject.AddComponent<AudioSource>();
@@ -181,5 +190,14 @@ public class DarkTileSystem : MonoBehaviour
             // 强制刷新显示
             baseMap.RefreshTile(position);
         }
+    }
+    // 在DarkTileSystem中添加Init方法
+    public void Init()
+    {
+        // 重置原始地块记录
+        originalTiles.Clear();
+
+        // 如果需要，可以在这里添加初始黑色地块的生成逻辑
+        // 例如：ExpandDarkTiles(initialDarkTileCount);
     }
 }
