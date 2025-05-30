@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55f747e8af38fbe4d8819f37be6fd5aa, type: 3}
   m_Name: TeleporHexTile
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: 21300000, guid: 0a284ebb17c8968419376af67c653094, type: 3}
+  m_DefaultSprite: {fileID: 21300000, guid: e15b3ea7ed85a7b48a8d56eaf6ffeb71, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules: []

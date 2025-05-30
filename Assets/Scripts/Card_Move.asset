@@ -15,7 +15,7 @@ MonoBehaviour:
   type: 0
   icon: {fileID: 3097797214446643625, guid: 5ad476d6394fdd947ab01bfb0d148895, type: 3}
   description: 
-  baseProbability: 20
+  baseProbability: 48.3
   levelProbabilities:
   - level: 1
     probabilityAdjustment: 0

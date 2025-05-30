@@ -707,7 +707,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1875,6 +1875,10 @@ MonoBehaviour:
   initialHandSize: 7
   maxHandSize: 7
   cardsPerTurn: 2
+  drawCardSound: {fileID: 0}
+  playCardSound: {fileID: 0}
+  drawVolume: 0.8
+  playVolume: 0.8
   currentHand: []
   currentLevel: 1
 --- !u!4 &1202429235
@@ -1940,6 +1944,9 @@ MonoBehaviour:
   baseMap: {fileID: 1754563436}
   darkTile: {fileID: 11400000, guid: 1001e090fc435824a8e739e4ecf584bd, type: 2}
   normalTile: {fileID: 11400000, guid: 37424bda4e6b8cb44a91d252446ada9b, type: 2}
+  darkTileExpandSound: {fileID: 0}
+  darkTileClearSound: {fileID: 0}
+  clearSoundVolume: 0.8
 --- !u!1 &1262091034
 GameObject:
   m_ObjectHideFlags: 0
@@ -2164,6 +2171,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardsPerTurn: 2
   maxCardsPerTurn: 3
+  turnEndSound: {fileID: 0}
+  turnEndVolume: 0.8
   onTurnStarted:
     m_PersistentCalls:
       m_Calls: []
@@ -2437,6 +2446,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardPrefab: {fileID: 6188655616549270593, guid: 286e79b080e7c4b42abb1a971bdc7d0c, type: 3}
   handContainer: {fileID: 778095582}
+  useCardNum: 3
 --- !u!4 &1707162550
 Transform:
   m_ObjectHideFlags: 0
@@ -2468,6 +2478,7 @@ GameObject:
   - component: {fileID: 1754563437}
   - component: {fileID: 1754563440}
   - component: {fileID: 1754563441}
+  - component: {fileID: 1754563442}
   m_Layer: 0
   m_Name: BaseMap
   m_TagString: Untagged
@@ -2553,6 +2564,16 @@ Tilemap:
       serializedVersion: 2
       m_TileIndex: 4
       m_TileSpriteIndex: 4
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741826
+  - first: {x: -1, y: -7, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 3
+      m_TileSpriteIndex: 3
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -2871,8 +2892,8 @@ Tilemap:
   - first: {x: -1, y: -1, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 3
-      m_TileSpriteIndex: 3
+      m_TileIndex: 4
+      m_TileSpriteIndex: 4
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -2988,7 +3009,7 @@ Tilemap:
     m_Data: {fileID: 11400000, guid: 1001e090fc435824a8e739e4ecf584bd, type: 2}
   - m_RefCount: 1
     m_Data: {fileID: 11400000, guid: 6f2ed0e7ffa78494792d69e2ef40a736, type: 2}
-  - m_RefCount: 40
+  - m_RefCount: 41
     m_Data: {fileID: 11400000, guid: 37424bda4e6b8cb44a91d252446ada9b, type: 2}
   m_TileSpriteArray:
   - m_RefCount: 0
@@ -2999,10 +3020,10 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 1
     m_Data: {fileID: -2723623525041974545, guid: f99ff14f70e2d2d45993b848e03bec17, type: 3}
-  - m_RefCount: 40
+  - m_RefCount: 41
     m_Data: {fileID: 2747690628134850419, guid: 8e3b54f9b988a76428b505c67d41d626, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 43
+  - m_RefCount: 44
     m_Data:
       e00: 1
       e01: 0
@@ -3021,7 +3042,7 @@ Tilemap:
       e32: 0
       e33: 1
   m_TileColorArray:
-  - m_RefCount: 43
+  - m_RefCount: 44
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
@@ -3181,6 +3202,59 @@ MonoBehaviour:
   baseMap: {fileID: 1754563436}
   darkTile: {fileID: 11400000, guid: 1001e090fc435824a8e739e4ecf584bd, type: 2}
   normalTile: {fileID: 11400000, guid: 37424bda4e6b8cb44a91d252446ada9b, type: 2}
+  darkTileExpandSound: {fileID: 0}
+  darkTileClearSound: {fileID: 0}
+  clearSoundVolume: 0.8
+--- !u!114 &1754563442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754563433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ComponentVersion: 1
+  m_LightType: 1
+  m_BlendStyleIndex: 0
+  m_FalloffIntensity: 0.5
+  m_Color: {r: 0, g: 0.93673205, b: 1, a: 1}
+  m_Intensity: 1
+  m_LightVolumeIntensity: 1
+  m_LightVolumeIntensityEnabled: 0
+  m_ApplyToSortingLayers: 00000000
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowIntensityEnabled: 0
+  m_ShadowIntensity: 0.75
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_LocalBounds:
+    m_Center: {x: -4.2301, y: 1.5074, z: 0}
+    m_Extent: {x: 7.6024003, y: 5.746, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 0.51
+  m_PointLightOuterRadius: 32.4
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 0.5
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath:
+  - {x: -10.451155, y: -3.740973, z: 0}
+  - {x: 0.378273, y: -1.9911517, z: 0}
+  - {x: 2.8736696, y: 4.7147865, z: 0}
+  - {x: -11.3336735, y: 6.7537074, z: 0}
 --- !u!213 &1793099689
 Sprite:
   m_ObjectHideFlags: 0
@@ -3391,88 +3465,6 @@ Sprite:
   m_PhysicsShape: []
   m_Bones: []
   m_SpriteID: 
---- !u!1 &1799401325
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1799401327}
-  - component: {fileID: 1799401326}
-  m_Layer: 0
-  m_Name: Light 2D
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1799401326
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1799401325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ComponentVersion: 1
-  m_LightType: 3
-  m_BlendStyleIndex: 0
-  m_FalloffIntensity: 0.5
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
-  m_LightVolumeIntensity: 1
-  m_LightVolumeIntensityEnabled: 0
-  m_ApplyToSortingLayers: 00000000
-  m_LightCookieSprite: {fileID: 0}
-  m_DeprecatedPointLightCookieSprite: {fileID: 0}
-  m_LightOrder: 0
-  m_AlphaBlendOnOverlap: 0
-  m_OverlapOperation: 0
-  m_NormalMapDistance: 3
-  m_NormalMapQuality: 2
-  m_UseNormalMap: 0
-  m_ShadowIntensityEnabled: 0
-  m_ShadowIntensity: 0.75
-  m_ShadowVolumeIntensityEnabled: 0
-  m_ShadowVolumeIntensity: 0.75
-  m_LocalBounds:
-    m_Center: {x: 0, y: -0.00000011920929, z: 0}
-    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
-  m_PointLightInnerAngle: 360
-  m_PointLightOuterAngle: 360
-  m_PointLightInnerRadius: 0.21
-  m_PointLightOuterRadius: 12.32
-  m_ShapeLightParametricSides: 5
-  m_ShapeLightParametricAngleOffset: 0
-  m_ShapeLightParametricRadius: 1
-  m_ShapeLightFalloffSize: 0.5
-  m_ShapeLightFalloffOffset: {x: 0, y: 0}
-  m_ShapePath:
-  - {x: -0.5, y: -0.5, z: 0}
-  - {x: 0.5, y: -0.5, z: 0}
-  - {x: 0.5, y: 0.5, z: 0}
-  - {x: -0.5, y: 0.5, z: 0}
---- !u!4 &1799401327
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1799401325}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.26, y: 0.63, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1892868984
 GameObject:
   m_ObjectHideFlags: 0
@@ -3558,4 +3550,3 @@ SceneRoots:
   - {fileID: 828869994}
   - {fileID: 1892868987}
   - {fileID: 656198877}
-  - {fileID: 1799401327}
