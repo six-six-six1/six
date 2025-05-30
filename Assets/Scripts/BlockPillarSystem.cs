@@ -8,7 +8,7 @@ using UnityEngine.Tilemaps;
 public class ActivationBlockData
 {
     public List<Vector3Int> blockPoss = new List<Vector3Int>();//能量柱的位置
-    public Vector3Int protectPos;//被保护的位置
+    public List<Vector3Int> protectPos = new List<Vector3Int>();//被保护的位置
     public int hp = 3;//能量柱的生命值
 }
 
@@ -25,6 +25,7 @@ public class BlockPillarSystem : MonoBehaviour
     public bool isUseEnergyStone = false;
     private int useUseEnergyStoneCount = 0; //使用能量石次数
     private ActivationBlockData currentActivationBlockData; //当前激活的信息
+    private int protectMaxCount = 4;
 
     private void Awake()
     {
@@ -78,18 +79,21 @@ public class BlockPillarSystem : MonoBehaviour
         for (int i = 0; i < allActivationBlockDataList.Count; i++)
         {
             ActivationBlockData activationBlockData = allActivationBlockDataList[i];
-            if (activationBlockData.protectPos == targetPos) //存在被拦截的位置
+            for (int j = 0; j < activationBlockData.protectPos.Count; j++)
             {
-                Debug.Log($"拦截能量柱的位置{activationBlockData.blockPoss[0]},{activationBlockData.blockPoss[1]},拦截的位置{activationBlockData.protectPos}");
-                activationBlockData.hp--;
-                if (activationBlockData.hp == 0) //生命值耗尽则移除
+                if (activationBlockData.protectPos[j] == targetPos) //存在被拦截的位置
                 {
-                    Debug.Log($"拦截能量耗尽,移除激活的能量柱,位置{activationBlockData.blockPoss[0]},{activationBlockData.blockPoss[1]}");
-                    RemoveActivationBlockData(activationBlockData);
+                    Debug.Log($"拦截能量柱的位置{activationBlockData.blockPoss[0]},{activationBlockData.blockPoss[1]},拦截的位置{activationBlockData.protectPos}");
+                    activationBlockData.hp--;
+                    if (activationBlockData.hp == 0) //生命值耗尽则移除
+                    {
+                        Debug.Log($"拦截能量耗尽,移除激活的能量柱,位置{activationBlockData.blockPoss[0]},{activationBlockData.blockPoss[1]}");
+                        RemoveActivationBlockData(activationBlockData);
+                    }
+                    return true;
                 }
-
-                return true;
             }
+        
         }
         return false;
     }
@@ -127,18 +131,25 @@ public class BlockPillarSystem : MonoBehaviour
             bool isActivation = false;
             if (currentActivationBlockData.blockPoss.Count == 1)
             {
-                Vector3Int[] directions = HexGridSystem.Instance.GetNeighborDirectionsForPosition(blockPosition);
-                for (int i = 0; i < directions.Length; i++)
+
+                for (int i = 0; i < 6; i++) //方向延伸
                 {
-                    Vector3Int pos1 = blockPosition + directions[i];
-                    Vector3Int[] directions2 = HexGridSystem.Instance.GetNeighborDirectionsForPosition(pos1);
-                    Vector3Int pos2 = pos1 + directions2[i];
-                    if (pos2 == currentActivationBlockData.blockPoss[0])
+                    Vector3Int newPos = blockPosition;
+                    List<Vector3Int> protectPosList = new List<Vector3Int>();
+                    for (int j = 0; j < protectMaxCount + 1; j++)
                     {
-                        Debug.Log("符合能量柱连线标准" + pos2);
-                        isActivation = true;
-                        currentActivationBlockData.protectPos = pos1;
-                        break;
+                        Vector3Int[] directions = HexGridSystem.Instance.GetNeighborDirectionsForPosition(newPos);
+                        newPos = newPos + directions[i];
+                        protectPosList.Add(newPos);
+                        Vector3Int[] directions2 = HexGridSystem.Instance.GetNeighborDirectionsForPosition(newPos);
+                        Vector3Int pos2 = newPos + directions2[i];
+                        if (pos2 == currentActivationBlockData.blockPoss[0])
+                        {
+                            Debug.Log("符合能量柱连线标准" + pos2);
+                            isActivation = true;
+                            currentActivationBlockData.protectPos = protectPosList;
+                            break;
+                        }
                     }
                 }
             }
@@ -185,9 +196,13 @@ public class BlockPillarSystem : MonoBehaviour
             {
                 ActivationBlockData activationBlockData = allActivationBlockDataList[i];
                 Gizmos.color = Color.red;
-                Vector3 targetPos = HexGridSystem.Instance.GetHexCenterPosition(activationBlockData.protectPos);
-                Vector3 pos =  new Vector3(targetPos.x, targetPos.y);
-                Gizmos.DrawCube(pos, Vector3.one);
+                for (int j = 0; j < activationBlockData.protectPos.Count; j++)
+                {
+                    Vector3 targetPos = HexGridSystem.Instance.GetHexCenterPosition(activationBlockData.protectPos[j]);
+                    Vector3 pos = new Vector3(targetPos.x, targetPos.y);
+                    Gizmos.DrawCube(pos, Vector3.one);
+                }
+           
 
             }
         }

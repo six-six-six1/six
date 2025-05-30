@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 6665643220616038991}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.09, y: 2.6459107, z: 0.073093615}
+  m_LocalPosition: {x: 8.022, y: 2.733, z: 0.073093615}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -52,8 +52,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -78,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 27a937dd83b138549aff01407a878fa3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 800b7f2e58ae87545ae5975d1eefa02e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -124,7 +122,6 @@ CircleCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6665643220616038991}
   m_Enabled: 1
-  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -148,9 +145,9 @@ CircleCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
+  m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
   m_Radius: 0.08
 --- !u!114 &-1379523701585832688
 MonoBehaviour:
@@ -166,8 +163,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   moveStartSound: {fileID: 8300000, guid: c39e1899b30c58142993165f6dbf1b09, type: 3}
-  moveEndSound: {fileID: 0}
-  moveLoopSound: {fileID: 0}
   moveVolume: 0.8
   moveParticles: {fileID: 8621244884537337544, guid: 00d684c394e10444fbf75cad911120fb, type: 3}
   teleportEffectPrefab: {fileID: 4659316545466304258, guid: 48a8e9f476c06ae4391f427ba541872f, type: 3}
