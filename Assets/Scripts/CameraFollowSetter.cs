@@ -17,9 +17,18 @@ public class CameraFollowSetter : MonoBehaviour
             virtualCamera.Follow = player.transform;
             virtualCamera.LookAt = player.transform;
         }
+        else if(virtualCamera==null)
+        {
+            Debug.LogError(" Virtual Camera not found!");
+        }
+        else if(player == null)
+        {
+            Debug.LogError(" Player not found!");
+        }
         else
         {
-            Debug.LogError("Player or Virtual Camera not found!");
+            Debug.LogError("Others not found!");
         }
     }
+   
 }

@@ -29,24 +29,30 @@ public class TeleportSystem : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
-
-    //触发传送门
-    public void Trigger(Vector3Int position)
+    public void CheckPlayerOnTeleport(Vector3Int playerGridPos)
     {
-        for (int i = 0; i < allTeleportDataList.Count; i++)
+        foreach (var teleportData in allTeleportDataList)
         {
-            TeleportData teleportData = allTeleportDataList[i];
-            if (teleportData.startTelportPos == position) //判断传送门跟移动的位置是否一样
+            if (teleportData.startTelportPos == playerGridPos)
             {
                 Vector3 targetPos = HexGridSystem.Instance.GetHexCenterPosition(teleportData.targetTelportPos);
                 PlayerController.Instance.SetPlayerPos(targetPos);
                 RemoveTeleport(teleportData);
+                break;
             }
-            else if (teleportData.targetTelportPos == position)
+        }
+    }
+    //触发传送门
+    public void Trigger(Vector3Int position)
+    {
+        foreach (var teleportData in allTeleportDataList)
+        {
+            if (teleportData.startTelportPos == position)
             {
-                Vector3 targetPos = HexGridSystem.Instance.GetHexCenterPosition(teleportData.startTelportPos);
+                Vector3 targetPos = HexGridSystem.Instance.GetHexCenterPosition(teleportData.targetTelportPos);
                 PlayerController.Instance.SetPlayerPos(targetPos);
                 RemoveTeleport(teleportData);
+                break;
             }
         }
     }

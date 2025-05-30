@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Visual Effects")]
     public ParticleSystem moveParticles;    // 移动粒子特效
-    public GameObject teleportEffectPrefab; // 传送特效预制体
+   // public GameObject teleportEffectPrefab; // 传送特效预制体
     public GameObject moveTrailEffectPrefab; // 新增：移动拖尾特效预制体
     public float effectDuration = 1f;       // 特效持续时间
 
@@ -179,16 +179,16 @@ public class PlayerController : MonoBehaviour
             CardManager.Instance.AddCard(3);
             HexGridSystem.Instance.SetNormalTile(cellPos);
         }
-        else if (HexGridSystem.Instance.IsTeleportHexTile(cellPos))
-        {
-            // 传送门特效
-            if (teleportEffectPrefab != null)
-            {
-                GameObject effect = Instantiate(teleportEffectPrefab, transform.position, Quaternion.identity);
-                Destroy(effect, effectDuration);
-            }
-            TeleportSystem.Instance.Trigger(cellPos);
-        }
+        //else if (HexGridSystem.Instance.IsTeleportHexTile(cellPos))
+        //{
+        //    // 传送门特效
+        //    if (teleportEffectPrefab != null)
+        //    {
+        //        GameObject effect = Instantiate(teleportEffectPrefab, transform.position, Quaternion.identity);
+        //        Destroy(effect, effectDuration);
+        //    }
+        //    TeleportSystem.Instance.Trigger(cellPos);
+        //}
         while (Vector3.Distance(transform.position, targetPos) > 0.01f)
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
@@ -198,5 +198,6 @@ public class PlayerController : MonoBehaviour
         isMoving = false;
         CardUIManager.Instance?.EndMoveTargetSelection();
         Debug.Log("移动完成并清除高亮");
+
     }
 }
