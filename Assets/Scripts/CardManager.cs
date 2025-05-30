@@ -211,4 +211,10 @@ public class CardManager : MonoBehaviour
 
         Destroy(card);
     }
+    public void ResetForNewLevel()
+    {
+        currentHand.Clear();
+        ValidateProbabilities();
+        DrawInitialHand();
+    }
 }

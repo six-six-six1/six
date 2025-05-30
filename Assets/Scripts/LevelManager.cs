@@ -105,4 +105,22 @@ public class LevelManager : MonoBehaviour
 
         return currentLevelData.levelID < allLevels.Count;
     }
+    // ÔÚ LevelManager.cs ÖÐÌí¼Ó
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (currentLevelData != null && CardManager.Instance != null)
+        {
+            CardManager.Instance.ApplyLevelSettings(currentLevelData);
+        }
+    }
 }

@@ -28,7 +28,7 @@ public class TurnManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-           
+            
         }
         else
         {

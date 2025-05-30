@@ -13,7 +13,7 @@ public class CardData : ScriptableObject
 
     [Header("各关卡概率配置")]
     [Tooltip("每个关卡的独立概率(1-100)")]
-    [Range(1, 100)]
+    [Range(0, 100)]
     public List<float> levelProbabilities = new List<float>() { 20f, 20f, 20f, 20f, 20f }; // 默认每个关卡20%
 
     /// <summary>

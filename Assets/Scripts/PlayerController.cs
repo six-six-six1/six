@@ -17,12 +17,14 @@ public class PlayerController : MonoBehaviour
     [Header("Visual Effects")]
     public ParticleSystem moveParticles;    // 移动粒子特效
     public GameObject teleportEffectPrefab; // 传送特效预制体
+    public GameObject moveTrailEffectPrefab; // 新增：移动拖尾特效预制体
     public float effectDuration = 1f;       // 特效持续时间
 
     private Vector3 targetPosition;
     private bool isMoving;
     private Coroutine movementRoutine;
     private AudioSource audioSource;
+    private GameObject currentTrailEffect; // 当前拖尾特效实例
     public static PlayerController Instance;
 
     private void Awake()
@@ -120,6 +122,13 @@ public class PlayerController : MonoBehaviour
             moveParticles.Play();
         }
 
+        // 4. 创建移动拖尾特效
+        if (moveTrailEffectPrefab != null)
+        {
+            currentTrailEffect = Instantiate(moveTrailEffectPrefab, transform.position, Quaternion.identity);
+            currentTrailEffect.transform.SetParent(transform); // 拖尾跟随玩家
+        }
+
         Vector3 targetPos = HexGridSystem.Instance.GetHexCenterPosition(target);
         Debug.Log($"目标世界坐标: {targetPos} 距离：{Vector3.Distance(transform.position, targetPos)}");
 
@@ -130,6 +139,11 @@ public class PlayerController : MonoBehaviour
                 targetPos,
                 moveSpeed * Time.deltaTime
             );
+            // 更新拖尾特效位置
+            if (currentTrailEffect != null)
+            {
+                currentTrailEffect.transform.position = transform.position;
+            }
             yield return null;
         }
 
@@ -144,8 +158,14 @@ public class PlayerController : MonoBehaviour
             moveParticles.Stop();
         }
 
+        // 3. 销毁拖尾特效
+        if (currentTrailEffect != null)
+        {
+            Destroy(currentTrailEffect);
+            currentTrailEffect = null;
+        }
         // 播放移动结束音效
-       // PlaySound(moveEndSound, moveVolume * 0.8f);
+        // PlaySound(moveEndSound, moveVolume * 0.8f);
 
         Vector3Int cellPos = HexGridSystem.Instance.WorldToCell(targetPos);
 

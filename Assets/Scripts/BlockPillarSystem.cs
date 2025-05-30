@@ -10,6 +10,7 @@ public class ActivationBlockData
     public List<Vector3Int> blockPoss = new List<Vector3Int>();//能量柱的位置
     public List<Vector3Int> protectPos = new List<Vector3Int>();//被保护的位置
     public int hp = 3;//能量柱的生命值
+    public List<GameObject> effectObjects = new List<GameObject>(); // 存储特效对象
 }
 
 public class BlockPillarSystem : MonoBehaviour
@@ -26,6 +27,8 @@ public class BlockPillarSystem : MonoBehaviour
     private int useUseEnergyStoneCount = 0; //使用能量石次数
     private ActivationBlockData currentActivationBlockData; //当前激活的信息
     private int protectMaxCount = 4;
+
+    public GameObject blockEffectPrefab; // 在Inspector中分配特效Prefab
 
     private void Awake()
     {
@@ -101,6 +104,14 @@ public class BlockPillarSystem : MonoBehaviour
     //移除掉激活的能量柱
     void RemoveActivationBlockData(ActivationBlockData activationBlockData)
     {
+        // 移除特效
+        foreach (var effect in activationBlockData.effectObjects)
+        {
+            if (effect != null)
+            {
+                effect.GetComponent<BlockPillarEffect>().DestroyEffect();
+            }
+        }
         activationPosList.Remove(activationBlockData.blockPoss[0]);
         activationPosList.Remove(activationBlockData.blockPoss[1]);
         allActivationBlockDataList.Remove(activationBlockData);
@@ -148,6 +159,8 @@ public class BlockPillarSystem : MonoBehaviour
                             Debug.Log("符合能量柱连线标准" + pos2);
                             isActivation = true;
                             currentActivationBlockData.protectPos = protectPosList;
+                            // 在两个阻挡柱之间的格子上生成特效
+                            CreateEffectsBetweenBlocks(currentActivationBlockData.blockPoss[0], blockPosition, protectPosList);
                             break;
                         }
                     }
@@ -183,6 +196,16 @@ public class BlockPillarSystem : MonoBehaviour
             }
         }
     }
+    // 在两个阻挡柱之间的格子上创建特效
+    void CreateEffectsBetweenBlocks(Vector3Int block1, Vector3Int block2, List<Vector3Int> protectPosList)
+    {
+        foreach (var pos in protectPosList)
+        {
+            Vector3 worldPos = HexGridSystem.Instance.GetHexCenterPosition(pos);
+            GameObject effect = Instantiate(blockEffectPrefab, worldPos, Quaternion.identity);
+            currentActivationBlockData.effectObjects.Add(effect);
+        }
+    }
 
 
 
@@ -201,6 +224,7 @@ public class BlockPillarSystem : MonoBehaviour
                     Vector3 targetPos = HexGridSystem.Instance.GetHexCenterPosition(activationBlockData.protectPos[j]);
                     Vector3 pos = new Vector3(targetPos.x, targetPos.y);
                     Gizmos.DrawCube(pos, Vector3.one);
+                   
                 }
            
 

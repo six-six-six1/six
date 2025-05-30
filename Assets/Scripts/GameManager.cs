@@ -145,10 +145,11 @@ public class GameManager : MonoBehaviour
     public void ReloadCurrentLevel()
     {
         Time.timeScale = 1;
-        // 先取消所有事件监听
-        if (turnManager != null)
+        
+        // 清除卡牌管理器的手牌数据
+        if (CardManager.Instance != null)
         {
-            turnManager.onTurnEnded.RemoveAllListeners();
+            CardManager.Instance.currentHand.Clear();
         }
         // 重载场景
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);

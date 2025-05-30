@@ -164,6 +164,7 @@ MonoBehaviour:
   moveSpeed: 5
   moveStartSound: {fileID: 8300000, guid: c39e1899b30c58142993165f6dbf1b09, type: 3}
   moveVolume: 0.8
-  moveParticles: {fileID: 8621244884537337544, guid: 00d684c394e10444fbf75cad911120fb, type: 3}
-  teleportEffectPrefab: {fileID: 4659316545466304258, guid: 48a8e9f476c06ae4391f427ba541872f, type: 3}
+  moveParticles: {fileID: 0}
+  teleportEffectPrefab: {fileID: 0}
+  moveTrailEffectPrefab: {fileID: 7700642936372213891, guid: d6a5695d50fd2344cba0c7c9348e550f, type: 3}
   effectDuration: 1
