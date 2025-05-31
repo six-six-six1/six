@@ -16,8 +16,8 @@ MonoBehaviour:
   icon: {fileID: 6291351035662250909, guid: 39d28296638855a49acd4d32b8cc822c, type: 3}
   description: 
   levelProbabilities:
-  - 0
-  - 0
+  - 100
+  - 100
   - 1
   - 1
   - 1

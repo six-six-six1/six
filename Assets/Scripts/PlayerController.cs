@@ -179,16 +179,13 @@ public class PlayerController : MonoBehaviour
             CardManager.Instance.AddCard(3);
             HexGridSystem.Instance.SetNormalTile(cellPos);
         }
-        //else if (HexGridSystem.Instance.IsTeleportHexTile(cellPos))
-        //{
-        //    // 传送门特效
-        //    if (teleportEffectPrefab != null)
-        //    {
-        //        GameObject effect = Instantiate(teleportEffectPrefab, transform.position, Quaternion.identity);
-        //        Destroy(effect, effectDuration);
-        //    }
-        //    TeleportSystem.Instance.Trigger(cellPos);
-        //}
+        else if (HexGridSystem.Instance.IsTeleportHexTile(cellPos))
+        {
+
+           
+            TeleportSystem.Instance.Trigger(cellPos);
+            yield break; // 关键修复：立即退出协程
+        }
         while (Vector3.Distance(transform.position, targetPos) > 0.01f)
         {
             transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55f747e8af38fbe4d8819f37be6fd5aa, type: 3}
   m_Name: BlockPillarHexTile
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: -6244505363097629701, guid: 4188a3564edf0a4408e9bc13cc5688d6, type: 3}
+  m_DefaultSprite: {fileID: -1173842359, guid: 3784331061bb21d429b6cb0c51131243, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules: []

@@ -19,6 +19,7 @@ public class DarkTileSystem : MonoBehaviour
     [Range(0, 1)] public float clearSoundVolume = 0.8f;
     private Dictionary<Vector3Int, TileBase> originalTiles = new Dictionary<Vector3Int, TileBase>();
 
+
     private void Awake()
     {
         if (tilemap == null)
@@ -156,39 +157,55 @@ public class DarkTileSystem : MonoBehaviour
         }
     }
 
-    public void ClearDarkTile(Vector3Int position)
+    public void ClearDarkTile(Vector3Int position, float delay = 1f)
     {
+        // 使用协程实现延迟清除
+        StartCoroutine(ClearDarkTileWithDelay(position, delay));
+    }
+
+    /// <summary>
+    /// 延迟清除黑雾地块的协程
+    /// </summary>
+    private IEnumerator ClearDarkTileWithDelay(Vector3Int position, float delay)
+    {
+        // 等待指定的延迟时间
+        yield return new WaitForSeconds(delay);
+
         // 验证 Tilemap 和 darkTile 是否已赋值
         if (tilemap == null || darkTile == null)
         {
             Debug.LogError("Tilemap 或 darkTile 未配置！");
-            return;
+            yield break;
         }
 
-        // 检查目标位置是否是 DarkHexTile
+        // 检查目标位置是否是黑雾地块
         if (baseMap.GetTile(position) == darkTile)
         {
             // 播放清除音效
             if (darkTileClearSound != null)
             {
                 audioSource.PlayOneShot(darkTileClearSound, clearSoundVolume);
-
             }
-            // 恢复原始 Tile（如果已存储）
+
+            // 恢复原始地块（如果已存储）
             if (originalTiles.TryGetValue(position, out TileBase original))
             {
                 baseMap.SetTile(position, original);
                 originalTiles.Remove(position);
-                Debug.Log($"已清除DarkHexTile：{position}，恢复为 {original.name}");
+                Debug.Log($"已清除黑雾地块：{position}，恢复为 {original.name}");
             }
             else
             {
-                // 默认恢复为预设的normalTile（白色地块）
+                // 默认恢复为预设的普通地块
                 baseMap.SetTile(position, normalTile);
-                Debug.LogWarning($"位置 {position} 无原始记录，恢复为默认Tile");
+                Debug.LogWarning($"位置 {position} 无原始记录，恢复为默认地块");
             }
+
             // 强制刷新显示
             baseMap.RefreshTile(position);
+
+            // 播放地块清除特效
+            EffectManager.Instance.PlayTileDestroyEffect(baseMap.GetCellCenterWorld(position));
         }
     }
     // 在DarkTileSystem中添加Init方法
