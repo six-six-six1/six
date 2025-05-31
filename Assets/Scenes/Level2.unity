@@ -609,7 +609,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72ece51f2901e7445ab60da3685d6b5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ShowDebugText: 1
+  m_ShowDebugText: 0
   m_ShowCameraFrustum: 1
   m_IgnoreTimeScale: 0
   m_WorldUpOverride: {fileID: 0}
@@ -1601,7 +1601,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 534679665}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1927,7 +1927,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e15b3ea7ed85a7b48a8d56eaf6ffeb71, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d6c8b9285dc817e4286c0f1cc9b84b84, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2329,7 +2329,7 @@ MonoBehaviour:
   sfx:
     setupSound: {fileID: 8300000, guid: ca8b92aa683e8f24e9268d8af03b515b, type: 3}
     teleportSound: {fileID: 8300000, guid: 8d86af751216cf94eab91c43f8daf8d6, type: 3}
-    teleportEffect: {fileID: 3744133877081091469, guid: a2a060732547fe64581bb0cb3c2bdf1d, type: 3}
+    teleportEffect: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
     volume: 0.8
 --- !u!4 &909175246
 Transform:
@@ -2585,7 +2585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.66981125, b: 0.66981125, a: 1}
+  m_Color: {r: 1, g: 0.81016517, b: 0.29874206, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2605,7 +2605,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: LEVEL 2
 --- !u!222 &1018301665
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5647,7 +5647,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a470ef4b61285314cbeeddcf51a57f32, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 558bb9291b5fe6e498a73a70ad8081c7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
