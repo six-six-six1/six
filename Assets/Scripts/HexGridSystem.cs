@@ -113,7 +113,7 @@ public class HexGridSystem : MonoBehaviour
         {
             originalTiles[position] = tilemap.GetTile(position);
             tilemap.SetTile(position, highlightTile);
-            tilemap.SetColor(position, Color.yellow); // 叠加颜色而非替换Tile
+            tilemap.SetColor(position, Color.white); // 叠加颜色而非替换Tile
             highlightTileList.Add(tilemap.GetTile(position));
 
         }
