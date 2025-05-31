@@ -3,32 +3,56 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class TeleportData
+[System.Serializable]
+public class TeleportSFX
 {
-    public Vector3Int startTelportPos;//开始传送点位置
-    public Vector3Int targetTelportPos;//目标传送点位置
-
+    public AudioClip setupSound;      // 设置传送门音效
+    public AudioClip teleportSound;   // 传送成功音效
+    public GameObject teleportEffect; // 传送特效预制体
+    [Range(0, 1)] public float volume = 0.8f;
 }
 
-//传送门系统
+public class TeleportData
+{
+    public Vector3Int startTelportPos;    // 开始传送点位置
+    public Vector3Int targetTelportPos;   // 目标传送点位置
+}
+
+// 传送门系统
 public class TeleportSystem : MonoBehaviour
 {
+    [Header("基础设置")]
     public Tilemap baseMap;
     public TileBase teleporHexTile;
     public static TeleportSystem Instance;
 
-    private List<TeleportData> allTeleportDataList = new List<TeleportData>(); //所哟传送门的信息
-    private TeleportData currentTeleportData;//当前传送门数据
-    private List<Vector3Int> normalPosList = new List<Vector3Int>();//正常格子数组
-    private Vector3Int exitPos;//撤离点的位置
+    [Header("音效与特效")]
+    public TeleportSFX sfx;  // 音效特效配置
 
+    private AudioSource audioSource;
+    private List<TeleportData> allTeleportDataList = new List<TeleportData>();
+    private TeleportData currentTeleportData;
+    private List<Vector3Int> normalPosList = new List<Vector3Int>();
+    private Vector3Int exitPos;
     private System.Action onSelectTeleportAction;
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
+
+    /// <summary>
+    /// 检查玩家是否站在传送门上
+    /// </summary>
     public void CheckPlayerOnTeleport(Vector3Int playerGridPos)
     {
         foreach (var teleportData in allTeleportDataList)
@@ -37,12 +61,38 @@ public class TeleportSystem : MonoBehaviour
             {
                 Vector3 targetPos = HexGridSystem.Instance.GetHexCenterPosition(teleportData.targetTelportPos);
                 PlayerController.Instance.SetPlayerPos(targetPos);
+                PlayTeleportEffects(teleportData); // 播放传送效果
                 RemoveTeleport(teleportData);
                 break;
             }
         }
     }
-    //触发传送门
+
+    /// <summary>
+    /// 播放传送音效和特效
+    /// </summary>
+    private void PlayTeleportEffects(TeleportData teleportData)
+    {
+        // 播放传送音效
+        if (sfx.teleportSound != null)
+        {
+            audioSource.PlayOneShot(sfx.teleportSound, sfx.volume);
+        }
+
+        // 在起点和目标点生成特效
+        if (sfx.teleportEffect != null)
+        {
+            Vector3 startWorldPos = baseMap.GetCellCenterWorld(teleportData.startTelportPos);
+            Vector3 targetWorldPos = baseMap.GetCellCenterWorld(teleportData.targetTelportPos);
+
+            Instantiate(sfx.teleportEffect, startWorldPos, Quaternion.identity);
+            Instantiate(sfx.teleportEffect, targetWorldPos, Quaternion.identity);
+        }
+    }
+
+    /// <summary>
+    /// 触发传送门
+    /// </summary>
     public void Trigger(Vector3Int position)
     {
         foreach (var teleportData in allTeleportDataList)
@@ -51,54 +101,53 @@ public class TeleportSystem : MonoBehaviour
             {
                 Vector3 targetPos = HexGridSystem.Instance.GetHexCenterPosition(teleportData.targetTelportPos);
                 PlayerController.Instance.SetPlayerPos(targetPos);
+                PlayTeleportEffects(teleportData); // 播放传送效果
                 RemoveTeleport(teleportData);
                 break;
             }
         }
     }
 
-    //在位置附近创建传送门
-    public void CreateTeleport(Vector3Int position,System.Action complete)
+    /// <summary>
+    /// 在位置附近创建传送门
+    /// </summary>
+    public void CreateTeleport(Vector3Int position, System.Action complete)
     {
+        // 播放设置传送门音效
+        if (sfx.setupSound != null)
+        {
+            audioSource.PlayOneShot(sfx.setupSound, sfx.volume);
+        }
+
         onSelectTeleportAction = complete;
         currentTeleportData = new TeleportData();
         allTeleportDataList.Add(currentTeleportData);
 
-        // 调用新方法获取方向数组
         Vector3Int[] directions = HexGridSystem.Instance.GetNeighborDirectionsForPosition(position);
-
         List<Vector3Int> createPosList = new List<Vector3Int>();
 
-        // 高亮所有可能方向的首个格子
         foreach (var dir in directions)
         {
             Vector3Int neighborPos = position + dir;
-            // 仅检查格子是否存在Tile，不限制是否为DarkHexTile
             if (HexGridSystem.Instance.IsNormalHexTile(neighborPos))
             {
                 createPosList.Add(neighborPos);
             }
         }
 
-        int index = 0;
-        if (createPosList.Count > 1)
-        {
-            index = Random.Range(0, createPosList.Count);
-        }
-        Debug.Log("当前可用于传送门的格子数量："+ createPosList.Count);
+        int index = createPosList.Count > 1 ? Random.Range(0, createPosList.Count) : 0;
         currentTeleportData.startTelportPos = createPosList[index];
-        Debug.Log($"传送门起点：{currentTeleportData.startTelportPos}");
         baseMap.SetTile(currentTeleportData.startTelportPos, teleporHexTile);
 
         normalPosList.Clear();
-        //获取所有正常的方块变成可防止传送门的高亮
         foreach (var pos in baseMap.cellBounds.allPositionsWithin)
         {
-            if (HexGridSystem.Instance.IsNormalHexTile(pos) && pos != position)//不能等于当前的位置
+            if (HexGridSystem.Instance.IsNormalHexTile(pos) && pos != position)
             {
                 HexGridSystem.Instance.HighlightHex(pos, true);
                 normalPosList.Add(pos);
-            } else if (HexGridSystem.Instance.IsExitHexTile(pos))//获取当前撤离点的位置
+            }
+            else if (HexGridSystem.Instance.IsExitHexTile(pos))
             {
                 exitPos = pos;
             }
@@ -106,35 +155,36 @@ public class TeleportSystem : MonoBehaviour
         TilemapClickHandler.OnHexClicked += OnSelectTelportClick;
     }
 
-    void OnSelectTelportClick(Vector3Int position)
+    private void OnSelectTelportClick(Vector3Int position)
     {
         TilemapClickHandler.OnHexClicked -= OnSelectTelportClick;
         HexGridSystem.Instance.ClearAllHighlights();
         baseMap.SetTile(position, teleporHexTile);
         currentTeleportData.targetTelportPos = position;
-        Debug.Log($"传送门终点：{currentTeleportData.targetTelportPos}");
         onSelectTeleportAction?.Invoke();
 
+        // 随机设置新撤离点
         int exitRandom = Random.Range(0, normalPosList.Count);
-        Vector3Int newExitPos = normalPosList[exitRandom]; //随机一个撤离点的位置
-        HexGridSystem.Instance.SetExitTile(newExitPos,exitPos);
-
+        HexGridSystem.Instance.SetExitTile(normalPosList[exitRandom], exitPos);
     }
 
-    //删除传送门
-    void RemoveTeleport(TeleportData teleportData)
+    /// <summary>
+    /// 删除传送门
+    /// </summary>
+    private void RemoveTeleport(TeleportData teleportData)
     {
         HexGridSystem.Instance.SetNormalTile(teleportData.startTelportPos);
         HexGridSystem.Instance.SetNormalTile(teleportData.targetTelportPos);
         allTeleportDataList.Remove(teleportData);
     }
 
-    // 清空传送门
+    /// <summary>
+    /// 清空所有传送门
+    /// </summary>
     public void ClearTeleport()
     {
         TilemapClickHandler.OnHexClicked -= OnSelectTelportClick;
-        var count = allTeleportDataList.Count;
-        for (int i = 0; i < count; i++)
+        while (allTeleportDataList.Count > 0)
         {
             RemoveTeleport(allTeleportDataList[0]);
         }

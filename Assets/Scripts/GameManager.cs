@@ -231,4 +231,8 @@ public class GameManager : MonoBehaviour
         int currentIndex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentIndex);
     }
+    public void ReturnToMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
 }

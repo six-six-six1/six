@@ -44,7 +44,7 @@ public class CardManager : MonoBehaviour
     private void Start()
     {
         ValidateProbabilities();
-        DrawInitialHand();
+        DrawInitialHand(silent: true); // 初始抽牌不播放音效
     }
 
     // 播放音效的辅助方法
@@ -101,24 +101,17 @@ public class CardManager : MonoBehaviour
     /// <summary>
     /// 抽取初始手牌
     /// </summary>
-    public void DrawInitialHand()
+    /// <param name="silent">是否静默模式（不播放音效）</param>
+    public void DrawInitialHand(bool silent = false)
     {
         currentHand.Clear();
         for (int i = 0; i < initialHandSize; i++)
         {
-            DrawCard();
-            // 为每张卡添加轻微延迟的音效（0.05秒间隔）
-           // if (i > 0) StartCoroutine(DelayedDrawSound(i * 0.05f));
+            DrawCard(silent);
         }
     }
 
-    private IEnumerator DelayedDrawSound(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        PlaySound(drawCardSound, drawVolume, Random.Range(0.9f, 1.1f));
-    }
-
-    private void DrawCard()
+    private void DrawCard(bool silent = false)
     {
         if (currentHand.Count >= maxHandSize)
         {
@@ -127,7 +120,6 @@ public class CardManager : MonoBehaviour
         }
 
         float totalProb = 0f;
-
         foreach (var card in allCardTypes)
         {
             totalProb += card.GetProbabilityForLevel(currentLevel);
@@ -151,8 +143,11 @@ public class CardManager : MonoBehaviour
         currentHand.Add(drawnCard);
         Debug.Log($"抽取卡牌: {drawnCard.type} (关卡{currentLevel}概率: {drawnCard.GetProbabilityForLevel(currentLevel)}%)");
 
-        // 立即播放抽卡音效（主音效）
-        PlaySound(drawCardSound, drawVolume, Random.Range(0.9f, 1.1f));
+        // 只在非静默模式下播放音效
+        if (!silent)
+        {
+            PlaySound(drawCardSound, drawVolume, Random.Range(0.9f, 1.1f));
+        }
 
         CardUIManager.Instance?.UpdateHandUI(currentHand);
     }
@@ -188,33 +183,14 @@ public class CardManager : MonoBehaviour
         Debug.Log($"已应用关卡设置: {levelData.levelName}");
         Debug.Log($"当前关卡ID: {currentLevel}");
 
-        // 重新验证概率并抽牌
         ValidateProbabilities();
-        DrawInitialHand();
-
+        DrawInitialHand(silent: true); // 关卡切换时初始抽牌也不播放音效
     }
 
-    private IEnumerator FadeOutAndDestroy(GameObject card)
-    {
-        CanvasGroup canvasGroup = card.GetComponent<CanvasGroup>();
-        if (canvasGroup == null) canvasGroup = card.AddComponent<CanvasGroup>();
-
-        float duration = 0.3f;
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            canvasGroup.alpha = Mathf.Lerp(1, 0, elapsed / duration);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        Destroy(card);
-    }
     public void ResetForNewLevel()
     {
         currentHand.Clear();
         ValidateProbabilities();
-        DrawInitialHand();
+        DrawInitialHand(silent: true); // 新关卡初始抽牌不播放音效
     }
 }
