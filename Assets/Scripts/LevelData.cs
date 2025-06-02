@@ -18,9 +18,14 @@ public class LevelData : ScriptableObject
     // public SceneAsset sceneAsset;         // 更安全的场景引用方式
 
     [Header("卡牌设置")]
-    public int initialHandSize = 5;          // 本关卡初始手牌数
+    public int initialHandSize = 3;          // 本关卡初始手牌数
     public int maxHandSize = 7;              // 本关卡手牌上限
     public int cardsPerTurn = 2;             // 本关卡每回合抽牌数
+
+    [Header("黑雾设置")]
+    public bool limitDarkTileExpansion = true; // 是否限制黑雾传染
+    public int maxExpansionPerTurn = 2;       // 每回合最大传染数量
+
 
     [Header("关卡状态")]
     public bool isUnlocked;                  // 是否已解锁

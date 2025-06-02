@@ -89,9 +89,20 @@ public class GameManager : MonoBehaviour
     // 回合结束时的回调函数
     private void OnTurnEnded()
     {
-        // 设置每回合感染1-2个地块
-        int expandCount = Random.Range(1, 3);
-        DarkTileSystem.Instance.ExpandDarkTiles(expandCount);
+        // 获取当前关卡数据
+        LevelData currentLevel = LevelManager.Instance?.currentLevelData;
+
+        if (currentLevel != null && !currentLevel.limitDarkTileExpansion)
+        {
+            // 无限制传染
+            DarkTileSystem.Instance.ExpandDarkTiles(100, true); // 使用大数字和isUnlimited=true
+        }
+        else
+        {
+            // 有限制传染
+            int expandCount = Random.Range(1, currentLevel.maxExpansionPerTurn + 1);
+            DarkTileSystem.Instance.ExpandDarkTiles(expandCount);
+        }
     }
 
     // 生成玩家

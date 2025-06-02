@@ -17,7 +17,9 @@ MonoBehaviour:
   description: 
   thumbnail: {fileID: 0}
   sceneName: Level1
-  initialHandSize: 5
+  initialHandSize: 3
   maxHandSize: 7
   cardsPerTurn: 2
+  limitDarkTileExpansion: 1
+  maxExpansionPerTurn: 2
   isUnlocked: 1

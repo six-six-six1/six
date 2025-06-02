@@ -23,7 +23,7 @@ public class CardData : ScriptableObject
     {
         // 确保关卡编号在有效范围内
         int index = Mathf.Clamp(level - 1, 0, levelProbabilities.Count - 1);
-        return Mathf.Clamp(levelProbabilities[index], 1f, 100f);
+        return Mathf.Clamp(levelProbabilities[index], 0f, 100f);
     }
 
     

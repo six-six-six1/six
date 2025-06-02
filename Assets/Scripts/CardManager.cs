@@ -25,6 +25,7 @@ public class CardManager : MonoBehaviour
     [SerializeField] private int currentLevel = 1;
     public int CurrentLevel => currentLevel;
 
+
     private void Awake()
     {
         if (Instance == null)
@@ -71,6 +72,7 @@ public class CardManager : MonoBehaviour
             Debug.LogError("必须配置5种卡牌！");
             return;
         }
+        NormalizeProbabilities(); // 添加这行来确保概率总和为100%
 
         float totalProb = 0f;
         foreach (var card in allCardTypes)
@@ -110,6 +112,41 @@ public class CardManager : MonoBehaviour
             DrawCard(silent);
         }
     }
+    private void NormalizeProbabilities()
+    {
+        if (allCardTypes.Count == 0) return;
+
+        float totalProb = 0f;
+        foreach (var card in allCardTypes)
+        {
+            totalProb += card.GetProbabilityForLevel(currentLevel);
+        }
+
+        // 如果总概率为0，则平均分配
+        if (totalProb <= 0)
+        {
+            float avgProb = 100f / allCardTypes.Count;
+            foreach (var card in allCardTypes)
+            {
+                int index = Mathf.Clamp(currentLevel - 1, 0, card.levelProbabilities.Count - 1);
+                card.levelProbabilities[index] = avgProb;
+            }
+            return;
+        }
+
+        // 调整概率使总和为100%
+        float adjustmentFactor = 100f / totalProb;
+        foreach (var card in allCardTypes)
+        {
+            int index = Mathf.Clamp(currentLevel - 1, 0, card.levelProbabilities.Count - 1);
+            card.levelProbabilities[index] = Mathf.Clamp(
+                card.levelProbabilities[index] * adjustmentFactor,
+                0f,
+                100f
+            );
+        }
+    }
+
 
     private void DrawCard(bool silent = false)
     {

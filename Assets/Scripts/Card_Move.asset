@@ -16,10 +16,10 @@ MonoBehaviour:
   icon: {fileID: 3097797214446643625, guid: 5ad476d6394fdd947ab01bfb0d148895, type: 3}
   description: 
   levelProbabilities:
-  - 100
-  - 100
-  - 0
-  - 1
+  - 60
+  - 50
+  - 40
+  - 40
   - 1
   moveDistance: 1
   maxClearDistance: 3

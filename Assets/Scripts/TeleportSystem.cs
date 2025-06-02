@@ -35,6 +35,8 @@ public class TeleportSystem : MonoBehaviour
     private List<Vector3Int> normalPosList = new List<Vector3Int>();
     private Vector3Int exitPos;
     private System.Action onSelectTeleportAction;
+    // 在TeleportSystem类中添加
+    public static event System.Action<Vector3Int> OnExitPositionChanged;
 
     private void Awake()
     {
@@ -166,6 +168,10 @@ public class TeleportSystem : MonoBehaviour
         // 随机设置新撤离点
         int exitRandom = Random.Range(0, normalPosList.Count);
         HexGridSystem.Instance.SetExitTile(normalPosList[exitRandom], exitPos);
+
+
+        // 触发事件通知
+        OnExitPositionChanged?.Invoke(normalPosList[exitRandom]);
     }
 
     /// <summary>

@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c60c0cadf093da94fb37207769b6c689, type: 3}
-  m_Name: Level2
+  m_Name: Level3
   m_EditorClassIdentifier: 
-  levelID: 2
+  levelID: 3
   levelName: "\u9ED8\u8BA4\u5173\u5361"
   description: 
   thumbnail: {fileID: 0}
-  sceneName: Level2
+  sceneName: Level3
   initialHandSize: 3
   maxHandSize: 7
   cardsPerTurn: 2
