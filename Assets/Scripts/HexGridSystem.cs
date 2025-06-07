@@ -12,9 +12,6 @@ public class HexGridSystem : MonoBehaviour
 
     public TileBase normalHexTile;
     public TileBase exitHexTile;
-    // 在HexGridSystem类中添加
-    public static event System.Action OnExitPositionChanged;
-
 
     private void Awake()
     {

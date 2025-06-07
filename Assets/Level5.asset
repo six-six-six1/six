@@ -9,17 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96af8be9abe77674c8d0775d8db7e748, type: 3}
-  m_Name: Card_Shock
+  m_Script: {fileID: 11500000, guid: c60c0cadf093da94fb37207769b6c689, type: 3}
+  m_Name: Level5
   m_EditorClassIdentifier: 
-  type: 3
-  icon: {fileID: 4384133029620257777, guid: 8ac8a9227b6fa2a4ebff209e6c918061, type: 3}
+  levelID: 5
+  levelName: "\u9ED8\u8BA4\u5173\u5361"
   description: 
-  levelProbabilities:
-  - 40
-  - 20
-  - 20
-  - 40
-  - 30
-  moveDistance: 1
-  maxClearDistance: 3
+  thumbnail: {fileID: 0}
+  sceneName: 
+  initialHandSize: 3
+  maxHandSize: 7
+  cardsPerTurn: 2
+  limitDarkTileExpansion: 1
+  maxExpansionPerTurn: 2
+  isUnlocked: 0
