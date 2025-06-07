@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     public GameObject loseUI;        // 失败UI
     public Button nextLevelButton;   // 下一关按钮
     public Button retryButton;       // 重试按钮
+    public Button globalReturnButton; // 拖拽你的按钮到这个字段
 
     // 管理器引用
     public TurnManager turnManager;  // 回合管理器
@@ -83,6 +84,10 @@ public class GameManager : MonoBehaviour
         if (turnManager != null)
         {
             turnManager.onTurnEnded.RemoveListener(OnTurnEnded);
+        }
+        if (globalReturnButton != null)
+        {
+            globalReturnButton.onClick.AddListener(ReturnToMenu);
         }
     }
 
