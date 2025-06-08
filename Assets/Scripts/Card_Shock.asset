@@ -19,7 +19,7 @@ MonoBehaviour:
   - 40
   - 20
   - 20
-  - 40
   - 30
+  - 40
   moveDistance: 1
   maxClearDistance: 3
