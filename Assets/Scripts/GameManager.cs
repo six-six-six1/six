@@ -226,7 +226,7 @@ public class GameManager : MonoBehaviour
     }
 
     // 下一关按钮点击事件
-    private void OnNextLevelClicked()
+   public void OnNextLevelClicked()
     {
         Time.timeScale = 1; // 恢复游戏时间
                             // 使用LevelManager加载下一关

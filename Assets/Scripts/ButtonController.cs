@@ -13,6 +13,8 @@ public class ButtonManager : MonoBehaviour
     [Tooltip("菜单场景的buildIndex")]
     public int menuSceneIndex = 0;
 
+    
+
     private void Start()
     {
         // 绑定按钮事件
@@ -41,19 +43,7 @@ public class ButtonManager : MonoBehaviour
     /// </summary>
     public void LoadNextLevel()
     {
-        int currentIndex = SceneManager.GetActiveScene().buildIndex;
-        int nextIndex = currentIndex + 1;
-
-        // 检查是否超出场景总数
-        if (nextIndex < SceneManager.sceneCountInBuildSettings)
-        {
-            SceneManager.LoadScene(nextIndex);
-        }
-        else
-        {
-            Debug.Log("已经是最后一关，返回菜单");
-            SceneManager.LoadScene(menuSceneIndex);
-        }
+        GameManager.Instance.OnNextLevelClicked();
     }
 
     /// <summary>
@@ -61,8 +51,7 @@ public class ButtonManager : MonoBehaviour
     /// </summary>
     public void ReloadCurrentLevel()
     {
-        int currentIndex = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(currentIndex);
+        GameManager.Instance.ReloadCurrentLevel();
     }
 
     /// <summary>
