@@ -92,4 +92,18 @@ public class TurnManager : MonoBehaviour
     {
         return isPlayerTurn; // 只要在玩家回合就可以出牌
     }
+    // 在TurnManager.cs中添加重置方法
+public void ResetTurnManager()
+    {
+        CurrentTurn = 1;
+        CardsPlayedThisTurn = 0;
+        isPlayerTurn = true;
+
+        // 清除所有事件监听
+        onTurnStarted.RemoveAllListeners();
+        onTurnEnded.RemoveAllListeners();
+
+        // 重新初始化
+        StartPlayerTurn();
+    }
 }

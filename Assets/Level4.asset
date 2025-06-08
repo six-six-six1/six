@@ -16,7 +16,7 @@ MonoBehaviour:
   levelName: "\u9ED8\u8BA4\u5173\u5361"
   description: 
   thumbnail: {fileID: 0}
-  sceneName: 
+  sceneName: Level4
   initialHandSize: 3
   maxHandSize: 7
   cardsPerTurn: 2

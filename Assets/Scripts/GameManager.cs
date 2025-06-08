@@ -229,7 +229,17 @@ public class GameManager : MonoBehaviour
     private void OnNextLevelClicked()
     {
         Time.timeScale = 1; // 恢复游戏时间
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex+1); // 加载下一关
+                            // 使用LevelManager加载下一关
+        if (LevelManager.Instance != null && LevelManager.Instance.currentLevelData != null)
+        {
+            int nextLevelID = LevelManager.Instance.currentLevelData.levelID + 1;
+            LevelManager.Instance.LoadLevel(nextLevelID);
+        }
+        else
+        {
+            // 如果LevelManager不可用，回退到旧方法
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
     }
 
     // 重新加载当前关卡
@@ -237,15 +247,26 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1; // 恢复游戏时间
 
-        // 清除卡牌管理器的手牌数据
+        // 清除所有事件监听
+        if (CardUIManager.Instance != null)
+        {
+            CardUIManager.Instance.ClearAllEventListeners();
+        }
+
+        // 重置卡牌管理器
         if (CardManager.Instance != null)
         {
-            CardManager.Instance.currentHand.Clear();
+            CardManager.Instance.ResetForNewLevel();
+        }
+
+        // 重置回合管理器
+        if (TurnManager.Instance != null)
+        {
+            TurnManager.Instance.ResetTurnManager();
         }
 
         // 重载当前场景
-        int currentIndex = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(currentIndex);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     public void ReturnToMenu()
     {

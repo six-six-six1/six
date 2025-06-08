@@ -229,5 +229,7 @@ public class CardManager : MonoBehaviour
         currentHand.Clear();
         ValidateProbabilities();
         DrawInitialHand(silent: true); // 新关卡初始抽牌不播放音效
+                                       // 通知UI更新
+        CardUIManager.Instance?.UpdateHandUI(currentHand);
     }
 }

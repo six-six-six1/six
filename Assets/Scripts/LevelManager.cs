@@ -57,14 +57,22 @@ public class LevelManager : MonoBehaviour
             return;
         }
 
-        currentLevelData = targetLevel;
-        SceneManager.LoadScene(targetLevel.sceneName);
+        // 确保关卡已解锁（如果是通过正常流程加载）
+        if (!targetLevel.isUnlocked)
+        {
+            Debug.LogWarning($"尝试加载未解锁的关卡{targetLevelID}！");
+        }
 
-        // 确保卡牌管理器应用新关卡设置
+        currentLevelData = targetLevel;
+        Debug.Log($"正在加载关卡: {targetLevel.levelName} (ID: {targetLevel.levelID})");
+
+        // 先应用关卡设置，再加载场景
         if (CardManager.Instance != null)
         {
             CardManager.Instance.ApplyLevelSettings(targetLevel);
         }
+
+        SceneManager.LoadScene(targetLevel.sceneName);
     }
 
     /// <summary>

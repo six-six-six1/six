@@ -20,4 +20,6 @@ MonoBehaviour:
   initialHandSize: 3
   maxHandSize: 7
   cardsPerTurn: 2
+  limitDarkTileExpansion: 1
+  maxExpansionPerTurn: 2
   isUnlocked: 1
