@@ -137,7 +137,27 @@ public class GameManager : MonoBehaviour
 
         if (win)
         {
-            ShowWinUI(); // 显示胜利UI
+            // 检查是否是第五关（最后一关）
+            if (LevelManager.Instance != null &&
+                LevelManager.Instance.currentLevelData != null &&
+                LevelManager.Instance.IsLastLevel())
+            {
+                // 如果是最后一关，显示通关界面
+                if (EndGameManager.Instance != null)
+                {
+                    EndGameManager.Instance.ShowEndGameScreen();
+                }
+                else
+                {
+                    Debug.LogWarning("EndGameManager未找到，显示普通胜利UI");
+                    ShowWinUI();
+                }
+            }
+            else
+            {
+                // 不是最后一关，显示普通胜利UI
+                ShowWinUI();
+            }
         }
         else
         {

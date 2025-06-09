@@ -131,4 +131,15 @@ public class LevelManager : MonoBehaviour
             CardManager.Instance.ApplyLevelSettings(currentLevelData);
         }
     }
+    public bool IsLastLevel()
+    {
+        if (currentLevelData == null || allLevels.Count == 0)
+            return false;
+
+        // 假设第五关的levelID是5
+        return currentLevelData.levelID == 5;
+
+        // 或者如果你想动态判断最后一个关卡：
+        // return currentLevelData.levelID == allLevels[allLevels.Count - 1].levelID;
+    }
 }
