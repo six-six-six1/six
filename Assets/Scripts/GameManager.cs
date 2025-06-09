@@ -30,6 +30,11 @@ public class GameManager : MonoBehaviour
     public Button retryButton;       // 重试按钮
     public Button globalReturnButton; // 拖拽你的按钮到这个字段
 
+    [Header("说明面板")]
+    public GameObject helpPanel;      // 说明面板的UI对象
+    public Button helpButton;         // 打开面板的按钮
+    public Button closeHelpButton;    // 关闭面板的按钮
+
     // 管理器引用
     public TurnManager turnManager;  // 回合管理器
     public CardManager cardManager;  // 卡牌管理器
@@ -75,6 +80,21 @@ public class GameManager : MonoBehaviour
 
         // 初始化阻挡柱系统
         BlockPillarSystem.Instance.Init();
+        // 初始化说明面板按钮
+        if (helpButton != null)
+        {
+            helpButton.onClick.AddListener(ShowHelpPanel);
+        }
+        if (closeHelpButton != null)
+        {
+            closeHelpButton.onClick.AddListener(HideHelpPanel);
+        }
+
+        // 初始隐藏面板
+        if (helpPanel != null)
+        {
+            helpPanel.SetActive(false);
+        }
     }
 
     // 对象销毁时调用
@@ -189,7 +209,7 @@ public class GameManager : MonoBehaviour
         {
             nextLevelBtn.interactable = hasNextLevel;
             nextLevelBtn.onClick.RemoveAllListeners();
-            nextLevelBtn.onClick.AddListener(OnNextLevelClicked);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
 
         // 设置菜单按钮
@@ -237,7 +257,26 @@ public class GameManager : MonoBehaviour
             menuBtn.onClick.AddListener(() => LoadSceneByIndex(0)); // 0是开始场景的索引
         }
     }
+    // 显示说明面板
+    public void ShowHelpPanel()
+    {
+        if (helpPanel != null)
+        {
+            helpPanel.SetActive(true);
+            Time.timeScale = 0; // 可选：暂停游戏
 
+        }
+    }
+
+    // 隐藏说明面板
+    public void HideHelpPanel()
+    {
+        if (helpPanel != null)
+        {
+            helpPanel.SetActive(false);
+            Time.timeScale = 1; // 恢复游戏
+        }
+    }
     // 按场景索引加载场景
     private void LoadSceneByIndex(int sceneIndex)
     {
