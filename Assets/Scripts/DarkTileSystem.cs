@@ -149,7 +149,7 @@ public class DarkTileSystem : MonoBehaviour
     }
 
     private void CheckPlayerCaught()
-    {
+    {   
         Vector3Int playerHex = baseMap.WorldToCell(PlayerController.Instance.transform.position);
         if (baseMap.GetTile(playerHex) == darkTile)
         {

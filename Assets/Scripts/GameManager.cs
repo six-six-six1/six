@@ -54,6 +54,7 @@ public class GameManager : MonoBehaviour
         nextLevelButton.onClick.AddListener(OnNextLevelClicked);
         retryButton.onClick.AddListener(ReloadCurrentLevel);
 
+
         // ³õÊ¼Òþ²ØUI
         winUI.SetActive(false);
         loseUI.SetActive(false);

@@ -19,7 +19,7 @@ public class TurnManager : MonoBehaviour
     public UnityEvent onTurnEnded;
 
     private int currentTurn;
-    private bool isPlayerTurn;
+    public bool isPlayerTurn;
     public int CurrentTurn { get; private set; } = 1;
     public int CardsPlayedThisTurn { get; private set; }
 
@@ -65,6 +65,8 @@ public class TurnManager : MonoBehaviour
 
     public void EndPlayerTurn()
     {
+
+        Debug.Log($"第四关回合结束前 - CurrentTurn: {CurrentTurn}, isPlayerTurn: {isPlayerTurn}");
         isPlayerTurn = false;
         Debug.Log("回合结束");
 
@@ -75,6 +77,7 @@ public class TurnManager : MonoBehaviour
         onTurnEnded?.Invoke();
         // 直接开始新回合（移除敌人回合延迟）
         StartPlayerTurn();
+        Debug.Log($"第四关回合结束后 - CurrentTurn: {CurrentTurn}, isPlayerTurn: {isPlayerTurn}");
     }
 
     public void RegisterCardPlayed()

@@ -130,6 +130,7 @@ public class LevelManager : MonoBehaviour
         {
             CardManager.Instance.ApplyLevelSettings(currentLevelData);
         }
+     
     }
     public bool IsLastLevel()
     {
