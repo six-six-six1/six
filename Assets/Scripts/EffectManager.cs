@@ -57,8 +57,8 @@ public class EffectManager : MonoBehaviour
         }
 
         // 设置冲击波长度
-        float distance = Vector3.Distance(startPos, endPos);
-        effect.transform.localScale = new Vector3(1, distance, 1);
+        //float distance = Vector3.Distance(startPos, endPos);
+        //effect.transform.localScale = new Vector3(1, distance, 1);
 
         // 播放冲击波音效
         if (shockwaveSound != null)

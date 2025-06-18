@@ -8,7 +8,7 @@ public class EndGameManager : MonoBehaviour
 {
     [Header("UI References")]
     public GameObject endGamePanel;
-    public Button returnToMenuButton;
+    //public Button returnToMenuButton;
     public Button quitGameButton;
 
     public static EndGameManager Instance { get; private set; }
@@ -31,7 +31,7 @@ public class EndGameManager : MonoBehaviour
         endGamePanel.SetActive(false);
 
         // 绑定按钮事件
-        returnToMenuButton.onClick.AddListener(ReturnToMenu);
+       // returnToMenuButton.onClick.AddListener(ReturnToMenu);
         quitGameButton.onClick.AddListener(QuitGame);
     }
 
@@ -62,8 +62,8 @@ public class EndGameManager : MonoBehaviour
     private void OnDestroy()
     {
         // 移除事件监听
-        if (returnToMenuButton != null)
-            returnToMenuButton.onClick.RemoveListener(ReturnToMenu);
+        //if (returnToMenuButton != null)
+        //    returnToMenuButton.onClick.RemoveListener(ReturnToMenu);
 
         if (quitGameButton != null)
             quitGameButton.onClick.RemoveListener(QuitGame);
