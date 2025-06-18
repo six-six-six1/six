@@ -1582,6 +1582,7 @@ MonoBehaviour:
   onTurnEnded:
     m_PersistentCalls:
       m_Calls: []
+  isPlayerTurn: 0
 --- !u!4 &691941219
 Transform:
   m_ObjectHideFlags: 0
