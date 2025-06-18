@@ -25,6 +25,10 @@ public class CardManager : MonoBehaviour
     [SerializeField] private int currentLevel = 1;
     public int CurrentLevel => currentLevel;
 
+    private const CardData.CardType TELEPORT_TYPE = CardData.CardType.Teleport;
+    private const CardData.CardType ENERGY_STONE_TYPE = CardData.CardType.EnergyStone;
+    private const int MAX_TELEPORT_CARDS = 2;    // 传送门最大数量
+    private const int MAX_ENERGY_STONE_CARDS = 2; // 能量石最大数量
 
     private void Awake()
     {
@@ -147,7 +151,33 @@ public class CardManager : MonoBehaviour
         }
     }
 
+    // 检查手牌中特定类型卡牌的数量
+    private int GetCardCountInHand(CardData.CardType cardType)
+    {
+        int count = 0;
+        foreach (var card in currentHand)
+        {
+            if (card.type == cardType)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
 
+    // 检查是否可以抽取特定类型的卡牌
+    private bool CanDrawCardType(CardData card)
+    {
+        switch (card.type)
+        {
+            case TELEPORT_TYPE:
+                return GetCardCountInHand(TELEPORT_TYPE) < MAX_TELEPORT_CARDS;
+            case ENERGY_STONE_TYPE:
+                return GetCardCountInHand(ENERGY_STONE_TYPE) < MAX_ENERGY_STONE_CARDS;
+            default:
+                return true; // 其他卡牌无限制
+        }
+    }
     private void DrawCard(bool silent = false)
     {
         if (currentHand.Count >= maxHandSize)
@@ -156,18 +186,31 @@ public class CardManager : MonoBehaviour
             return;
         }
 
+        // 计算有效卡牌的总概率
         float totalProb = 0f;
+        List<CardData> availableCards = new List<CardData>();
+
         foreach (var card in allCardTypes)
         {
-            totalProb += card.GetProbabilityForLevel(currentLevel);
+            if (CanDrawCardType(card))
+            {
+                totalProb += card.GetProbabilityForLevel(currentLevel);
+                availableCards.Add(card);
+            }
+        }
+
+        if (availableCards.Count == 0)
+        {
+            Debug.LogWarning("没有可用的卡牌可抽！");
+            return;
         }
 
         // 随机选择卡牌
         float randomPoint = Random.Range(0f, totalProb);
         float cumulative = 0f;
-        CardData drawnCard = allCardTypes[0];
+        CardData drawnCard = availableCards[0];
 
-        foreach (var card in allCardTypes)
+        foreach (var card in availableCards)
         {
             cumulative += card.GetProbabilityForLevel(currentLevel);
             if (randomPoint <= cumulative)
